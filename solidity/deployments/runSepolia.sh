@@ -12,3 +12,6 @@ forge script \
 --etherscan-api-key $ETHERSCAN_API_KEY \
 --chain sepolia \
 script/PredictXOwner.s.sol
+
+# erc20: 0xB252f5258b4617A4d245b6f229ce8A4206232eB9
+# prediction: 0x6CD50CDf6645FebDdf9bc6a2E76e67C85869076b

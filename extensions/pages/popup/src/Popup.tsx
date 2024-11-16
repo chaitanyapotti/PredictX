@@ -12,6 +12,9 @@ import {
   flowTestnet,
   mantleSepoliaTestnet,
   lineaSepolia,
+  scrollSepolia,
+  morphHolesky,
+  unichainSepolia,
 } from 'viem/chains';
 import { PredictX_ABI, PredictX_CONTRACT_ADDRESS, USDC_ABI, USDC_CONTRACT_ADDRESS } from './config';
 import { useSession } from './contexts/SessionContext';
@@ -49,19 +52,22 @@ type VoteRequest = {
   };
 };
 
+// const chain = sepolia;
 const chain = baseSepolia;
-// const chain = baseSepolia;
+// const chain = unichainSepolia;
 // const chain = polygonAmoy;
 // const chain = bitkubTestnet;
 // const chain = mantleSepoliaTestnet;
 // const chain = lineaSepolia;
 // const chain = flowTestnet;
+// const chain = scrollSepolia;
+// const chain = morphHolesky;
 
 let request: MessageRequest;
 let sendResponse: (response: unknown) => void
 
-const Popup = ({ continueRequest, setShowLogin }: { continueRequest: boolean, setShowLogin: (show: boolean) => void }) => {
-  const { provider } = useSession();
+const Popup = ({ continueRequest, }: { continueRequest: boolean, setShowLogin: (show: boolean) => void }) => {
+  const { provider, web3authSFAuth, metamaskProvider } = useSession();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [marketData, setMarketData] = useState<any[]>([]);
 
@@ -188,10 +194,128 @@ const Popup = ({ continueRequest, setShowLogin }: { continueRequest: boolean, se
     ) => {
       setTimeout(async () => {
         try {
-          const provid = getProvider();
-          if (!provid) {
-            setShowLogin(true);
-            return;
+          const data = await chrome.storage.local.get(['token', 'login_type']);
+          let provid;
+          if (!web3authSFAuth || !metamaskProvider) return;
+          if (data.login_type === 'google') {
+            await web3authSFAuth?.init();
+            if (web3authSFAuth.status === 'connected') {
+              provid = web3authSFAuth?.provider;
+            }
+          } else if (data.login_type === 'metamask') {
+            const accounts = await metamaskProvider.request<string[]>({ method: 'eth_accounts' });
+            if (accounts && accounts.length > 0) {
+              provid = metamaskProvider;
+            }
+          }
+          if (request.type === 'create-market') {
+            const createMarketRequest = request as CreateMarketRequest;
+            const publicClient = createPublicClient({
+              chain,
+              transport: http(),
+            });
+            const client = createWalletClient({
+              chain,
+              transport: custom(provid!),
+            });
+            const addresses = await client.getAddresses();
+            const allowance = await publicClient.readContract({
+              account: addresses[0],
+              address: USDC_CONTRACT_ADDRESS as Hex,
+              abi: USDC_ABI,
+              functionName: 'allowance',
+              args: [addresses[0], PredictX_CONTRACT_ADDRESS],
+            });
+            const createTokenAmount = BigInt(createMarketRequest.data.tokenAmount * DECIMAL);
+            if ((allowance as bigint) < createTokenAmount) {
+              const approveHash = await client.writeContract({
+                account: addresses[0],
+                address: USDC_CONTRACT_ADDRESS as Hex,
+                abi: USDC_ABI,
+                functionName: 'approve',
+                args: [PredictX_CONTRACT_ADDRESS, Number(createTokenAmount) * 10],
+              });
+              await publicClient.waitForTransactionReceipt({ hash: approveHash });
+            }
+            const hash = await client.writeContract({
+              account: addresses[0],
+              address: PredictX_CONTRACT_ADDRESS as Hex,
+              abi: PredictX_ABI,
+              functionName: 'initializeMarketAndCreateOutcomeTokens',
+              args: [
+                'yes',
+                'no',
+                createMarketRequest.data.question,
+                toHex(createMarketRequest.data.marketId, { size: 32 }),
+                Number(createMarketRequest.data.tokenAmount * DECIMAL),
+              ],
+            });
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            sendResponse({ success: true, data: receipt.transactionHash, request });
+          }
+
+          if (request.type === 'get-market') {
+            const getMarketRequest = request as GetMarketRequest;
+            const marketId = getMarketRequest.data.marketId;
+            const publicClient = createPublicClient({
+              chain,
+              transport: http(),
+            });
+            const res = await publicClient.readContract({
+              address: PredictX_CONTRACT_ADDRESS as Hex,
+              abi: PredictX_ABI,
+              functionName: 'getMarket',
+              args: [toHex(marketId, { size: 32 })],
+            });
+            const market = (res as Array<unknown>)[0];
+            const token1Balance = (res as Array<unknown>)[1];
+            const token2Balance = (res as Array<unknown>)[2];
+            sendResponse({
+              success: true,
+              data: {
+                market,
+                token1Balance: Number(token1Balance as bigint),
+                token2Balance: Number(token2Balance as bigint),
+              },
+              request,
+            });
+          }
+
+          if (request.type === 'vote') {
+            const voteRequest = request as VoteRequest;
+            const publicClient = createPublicClient({
+              chain,
+              transport: http(),
+            });
+            const client = createWalletClient({
+              chain,
+              transport: custom(provid!),
+            });
+            const addresses = await client.getAddresses();
+            console.log('>>> coninc comd data', voteRequest);
+            const approveHash = await client.writeContract({
+              account: addresses[0],
+              address: USDC_CONTRACT_ADDRESS as Hex,
+              abi: USDC_ABI,
+              functionName: 'approve',
+              args: [PredictX_CONTRACT_ADDRESS, Number(voteRequest.data.amount) * 10 * DECIMAL],
+            });
+            await publicClient.waitForTransactionReceipt({ hash: approveHash });
+            const hash = await client.writeContract({
+              account: addresses[0],
+              address: PredictX_CONTRACT_ADDRESS as Hex,
+              abi: PredictX_ABI,
+              functionName: 'buy',
+              args: [
+                toHex(voteRequest.data.marketId, { size: 32 }),
+                voteRequest.data.voteTokenAddress,
+                Number(voteRequest.data.amount) * DECIMAL,
+              ],
+            });
+            console.log('>>> hash', hash);
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            console.log('>>> receipt', receipt);
+            sendResponse({ success: true, data: receipt.transactionHash, request });
           }
           request = req;
           sendResponse = sendResponseFn;

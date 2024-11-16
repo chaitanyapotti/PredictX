@@ -12,5 +12,5 @@ forge script \
 --chain-id 25925 \
 script/PredictXOwner.s.sol
 
-# erc20: 0x7616497a8989dD88CF0C1d99A6438A093E0C05af
-# prediction: 0x61127b1e63E282041ac286c3eFa3151Db0bfCa5e
+# erc20: 0x4a65Cbe1accf8D8BB24986993102EDb76E50ef55
+# prediction: 0x4C66096862bD49929DCd2888bc5F7A22aEe84460
