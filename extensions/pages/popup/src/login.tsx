@@ -42,13 +42,9 @@ export const initWeb3Auth = () => {
     web3AuthNetwork: 'sapphire_mainnet',
     usePnPKey: true, // Setting this to true returns the same key as PnP Web SDK, By default, this SDK returns CoreKitKey.
     privateKeyProvider: ethPrivateKeyProvider,
-    // sessionTime: 1,
     storage: new ChromeStorage(),
-    // accountAbstractionProvider: aaProvider,
-    // useDkg: false,
   });
 
   return web3authSfa;
 };
 
-export const web3authSFAuth = initWeb3Auth();
