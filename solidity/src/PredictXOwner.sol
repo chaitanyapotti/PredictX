@@ -146,11 +146,11 @@ contract PredictXOwner {
 
     // Mints pair of tokens representing the value of outcome1 and outcome2. Trading of outcome tokens is outside of the
     // scope of this contract. The caller must approve this contract to spend the currency tokens.
-    function createOutcomeTokens(bytes32 marketId, uint256 tokensToCreate) public {
+    function createOutcomeTokens(bytes32 marketId, uint256 tokensToCreate) external {
         Market storage market = markets[marketId];
         require(market.outcome1Token != ExpandedIERC20(address(0)), "Market does not exist");
 
-        currency.safeTransferFrom(msg.sender, address(this), tokensToCreate);
+        currency.transferFrom(msg.sender, address(this), tokensToCreate);
 
         market.outcome1Token.mint(msg.sender, tokensToCreate);
         market.outcome2Token.mint(msg.sender, tokensToCreate);
@@ -162,7 +162,7 @@ contract PredictXOwner {
         string memory outcome1, // Short name of the first outcome.
         string memory outcome2, // Short name of the second outcome.
         string memory description, // Description of the market.
-        uint256 tokensToCreate) public returns (bytes32 marketId) {
+        uint256 tokensToCreate) external returns (bytes32 marketId) {
         marketId = this.initializeMarket(outcome1, outcome2, description);
         this.createOutcomeTokens(marketId, tokensToCreate);
     }

@@ -7,4 +7,4 @@ forge script \
 --mnemonics "$MNEMONIC" \
 --sender $(cast wallet address --mnemonic "$MNEMONIC") \
 --verify \
-script/PredictX.s.sol
+script/PredictXOwner.s.sol
