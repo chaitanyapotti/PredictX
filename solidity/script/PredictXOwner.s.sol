@@ -31,10 +31,12 @@ contract PredictXOwnerScript is Script {
         ExpandedERC20 defaultCurrencyContract = ExpandedERC20(defaultCurrency);
 
         PredictXOwner predict = new PredictXOwner(defaultCurrency);
-        console.log("Deployed Prediction Market at %s", address(predict), msg.sender);
+        address[] memory addresses = vm.getWallets();
+        console.log("Addresses: %s", addresses[0]);
+        console.log("Deployed Prediction Market at %s", address(predict), msg.sender, addresses[0]);
         defaultCurrencyContract.addMinter(msg.sender);
         defaultCurrencyContract.mint(msg.sender, 1e28);
-        require(defaultCurrencyContract.approve(msg.sender, 1e28), "no revert");
+        // require(defaultCurrencyContract.approve(msg.sender, 1e28), "no revert");
         require(defaultCurrencyContract.approve(address(predict), 1e28), "no revert");
         bytes32 marketId = predict.initializeMarket("yes", "no", "will trump win us election?");
         predict.createOutcomeTokens(marketId, 1e18);

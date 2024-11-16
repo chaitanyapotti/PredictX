@@ -62,8 +62,8 @@ contract PredictXOwner {
         currency = IERC20(_currency);
     }
 
-    function getMarket(bytes32 marketId) public view returns (Market memory) {
-        return markets[marketId];
+    function getMarket(bytes32 marketId) public view returns (Market memory, uint256 outcome1Balance, uint256 outcome2Balance) {
+        return (markets[marketId], markets[marketId].outcome1Token.balanceOf(address(this)), markets[marketId].outcome2Token.balanceOf(address(this)));
     }
 
     function initializeMarket(
