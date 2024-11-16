@@ -22,7 +22,7 @@ interface MessageResponse<T> {
 // Remove unused Market interface
 interface CreateMarketFormData {
   question: string;
-  tokenAmount: string;
+  tokenAmount: number;
 }
 
 interface TooltipProps {
@@ -31,13 +31,11 @@ interface TooltipProps {
   onYes: () => void;
   onNo: () => void;
   onCreateMarket: () => void;
-  yesOdds?: number;
-  noOdds?: number;
   userVote?: 'yes' | 'no' | null;
 }
 
 interface VoteFormData {
-  amount: string;
+  amount: number;
 }
 
 interface Market {
@@ -50,16 +48,10 @@ interface Market {
   description: string;
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, yesOdds, noOdds, userVote = null }) => {
-  const [voteType, setVoteType] = React.useState<'yes' | 'no' | null>(null);
-
-  const { register: registerVote, handleSubmit: handleVoteSubmit } = useForm<VoteFormData>({
-    defaultValues: {
-      amount: '1',
-    },
-  });
-
-  const { isPending, error, data } = useQuery<MessageResponse<Market>>({
+export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, userVote = null }) => {
+  const { isPending, isLoading, error, data, refetch } = useQuery<
+    MessageResponse<{ market: Market; token1Balance: number; token2Balance: number }>
+  >({
     queryKey: ['repoData'],
     queryFn: () =>
       chrome.runtime.sendMessage({
@@ -70,15 +62,25 @@ export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, yesOdds
       }),
   });
 
+  const [voteType, setVoteType] = React.useState<'yes' | 'no' | null>(null);
+  const [isWriting, setIsWriting] = React.useState(false);
+
+  const { register: registerVote, handleSubmit: handleVoteSubmit } = useForm<VoteFormData>({
+    defaultValues: {
+      amount: 1,
+    },
+  });
+
   const { register, handleSubmit } = useForm<CreateMarketFormData>({
     defaultValues: {
       question: tweetContent,
-      tokenAmount: '1',
+      tokenAmount: 100,
     },
   });
 
   const handleCreateMarket = async (data: CreateMarketFormData) => {
     try {
+      setIsWriting(true);
       const response = await chrome.runtime.sendMessage({
         type: MessageType.CREATE_MARKET,
         data: {
@@ -88,25 +90,46 @@ export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, yesOdds
         },
       });
       console.log('>>> response create market', response);
+      refetch();
     } catch (e) {
       console.error('Error creating market:', e);
+    } finally {
+      setIsWriting(false);
     }
   };
 
+  const doesMarketExist = data?.success;
+
+  console.log('>>> data', data);
+  const { market, token1Balance, token2Balance } = data?.data || {};
+  const token1B = token1Balance ?? 0;
+  const token2B = token2Balance ?? 0;
+  const total = token1B + token2B;
+
+  const token1Odd = total ? (token1B / total) * 100 : 50;
+  const token2Odd = total ? (token2B / total) * 100 : 50;
+
   const handleVote = async (data: VoteFormData) => {
     try {
+      setIsWriting(true);
+      if (!doesMarketExist) {
+        throw new Error('No available market');
+      }
       const response = await chrome.runtime.sendMessage({
         type: MessageType.VOTE,
         data: {
           marketId: tweetId,
-          vote: voteType,
+          voteTokenAddress: voteType === 'yes' ? market?.outcome1Token : market?.outcome2Token,
           amount: data.amount,
         },
       });
       console.log('>>> vote response', response);
       setVoteType(null); // Reset vote type after submission
+      refetch();
     } catch (e) {
       console.error('Error voting:', e);
+    } finally {
+      setIsWriting(false);
     }
   };
 
@@ -114,105 +137,115 @@ export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, yesOdds
     e.stopPropagation();
   };
 
-  const doesMarketExist = data?.success;
-
-  console.log('>>> data', data);
+  const isLoadingOrPending = isLoading || isPending;
 
   return (
     <div
       className="absolute bottom-full right-0 mb-2 w-[520px] rounded-lg bg-white p-4 shadow-lg"
       onClick={handleTooltipClick}>
       {error && 'An error has occurred: ' + error.message}
-      {isPending && 'Loading...'}
-      {!isPending && doesMarketExist ? (
-        <div className="flex flex-col space-y-2">
-          <p className="mb-4 max-w-[520px] text-sm text-gray-700">{hexToString(data.data.description as Hex)}</p>
-          {!userVote ? (
-            <>
-              {!voteType ? (
-                <div className="flex justify-center space-x-4">
-                  <button
-                    onClick={() => setVoteType('yes')}
-                    className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600 disabled:opacity-50">
-                    Yes {yesOdds && `(${yesOdds}x)`}
-                  </button>
-                  <button
-                    onClick={() => setVoteType('no')}
-                    className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 disabled:opacity-50">
-                    No {noOdds && `(${noOdds}x)`}
-                  </button>
+      {isLoadingOrPending && 'Loading...'}
+      {!isLoadingOrPending && !error ? (
+        doesMarketExist ? (
+          <div className="flex flex-col space-y-2">
+            {isWriting && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/50">
+                <div className="text-center">
+                  <div className="mb-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+                  <p className="text-sm text-gray-600">Processing transaction...</p>
                 </div>
-              ) : (
-                <form onSubmit={handleVoteSubmit(handleVote)} className="flex flex-col space-y-4">
-                  <div>
-                    <label htmlFor="voteAmount" className="block text-sm font-medium text-gray-700">
-                      Amount to Vote ({voteType.toUpperCase()})
-                    </label>
-                    <div className="mt-1 flex items-center space-x-2">
-                      <input
-                        id="voteAmount"
-                        type="number"
-                        step="0.1"
-                        {...registerVote('amount')}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setVoteType(null)}
-                        className="rounded bg-gray-500 px-3 py-2 text-white hover:bg-gray-600">
-                        Cancel
-                      </button>
-                    </div>
+              </div>
+            )}
+            <p className="mb-4 max-w-[520px] text-sm text-gray-700">{hexToString(market?.description as Hex)}</p>
+            {!userVote ? (
+              <>
+                {!voteType ? (
+                  <div className="flex justify-center space-x-4">
+                    <button
+                      onClick={() => setVoteType('yes')}
+                      className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600 disabled:opacity-50">
+                      Yes {`(${token1Odd}%)`}
+                    </button>
+                    <button
+                      onClick={() => setVoteType('no')}
+                      className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 disabled:opacity-50">
+                      No {`(${token2Odd}%)`}
+                    </button>
                   </div>
-                  <button
-                    type="submit"
-                    className={`rounded px-4 py-2 text-white ${
-                      voteType === 'yes' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
-                    }`}>
-                    Confirm {voteType.toUpperCase()}
-                  </button>
-                </form>
-              )}
-            </>
-          ) : (
-            <div className="text-center text-sm font-medium text-gray-700">You voted: {userVote.toUpperCase()}</div>
-          )}
-          {(yesOdds || noOdds) && (
-            <div className="text-center text-sm text-gray-500">
-              Current odds: Yes {yesOdds?.toFixed(2)}x | No {noOdds?.toFixed(2)}x
+                ) : (
+                  <form onSubmit={handleVoteSubmit(handleVote)} className="flex flex-col space-y-4">
+                    <div>
+                      <label htmlFor="voteAmount" className="block text-sm font-medium text-gray-700">
+                        Amount to Vote ({voteType.toUpperCase()})
+                      </label>
+                      <div className="mt-1 flex items-center space-x-2">
+                        <input
+                          id="voteAmount"
+                          type="number"
+                          {...registerVote('amount')}
+                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setVoteType(null)}
+                          className="rounded bg-gray-500 px-3 py-2 text-white hover:bg-gray-600">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      className={`rounded px-4 py-2 text-white ${
+                        voteType === 'yes' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+                      }`}>
+                      Confirm {voteType.toUpperCase()}
+                    </button>
+                  </form>
+                )}
+              </>
+            ) : (
+              <div className="text-center text-sm font-medium text-gray-700">You voted: {userVote.toUpperCase()}</div>
+            )}
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit(handleCreateMarket)} className="flex flex-col space-y-4">
+            {isWriting && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/50">
+                <div className="text-center">
+                  <div className="mb-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+                  <p className="text-sm text-gray-600">Processing transaction...</p>
+                </div>
+              </div>
+            )}
+            <div>
+              <label htmlFor="question" className="block text-sm font-medium text-gray-700">
+                Question
+              </label>
+              <textarea
+                id="question"
+                {...register('question')}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                rows={3}
+              />
             </div>
-          )}
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit(handleCreateMarket)} className="flex flex-col space-y-4">
-          <div>
-            <label htmlFor="question" className="block text-sm font-medium text-gray-700">
-              Question
-            </label>
-            <textarea
-              id="question"
-              {...register('question')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              rows={3}
-            />
-          </div>
-          <div>
-            <label htmlFor="tokenAmount" className="block text-sm font-medium text-gray-700">
-              Token Amount
-            </label>
-            <input
-              type="number"
-              {...register('tokenAmount')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50">
-            Create Market
-          </button>
-        </form>
-      )}
+            <div>
+              <label htmlFor="tokenAmount" className="block text-sm font-medium text-gray-700">
+                Token Amount
+              </label>
+              <input
+                type="number"
+                {...register('tokenAmount')}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50">
+              Create Market
+            </button>
+          </form>
+        )
+      ) : null}
     </div>
   );
 };

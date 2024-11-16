@@ -1,6 +1,6 @@
-export const PredictX_CONTRACT_ADDRESS = '0x9103b7E0BE0cFd703F08CCcC94E6a52E58B1935E';
+export const PredictX_CONTRACT_ADDRESS = '0xA0A8b91e986E0061bb10a380e626245bced6E78c';
 
-export const USDC_CONTRACT_ADDRESS = '0x6Df56928beA35e3Dda29bCf9EB1d46127D3c0530';
+export const USDC_CONTRACT_ADDRESS = '0x8b9aBD51906704A9E3349b7ADdC2CB22dccF4a72';
 
 export const PredictX_ABI = [
   {
@@ -111,6 +111,37 @@ export const PredictX_ABI = [
       },
       {
         internalType: 'uint256',
+        name: 'currencyAmount',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        internalType: 'uint256',
+        name: 'outcomeTokensBought',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    type: 'event',
+    name: 'TokensBought',
+    anonymous: false,
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'marketId',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        internalType: 'uint256',
         name: 'tokensCreated',
         type: 'uint256',
         indexed: false,
@@ -180,6 +211,37 @@ export const PredictX_ABI = [
     ],
     type: 'event',
     name: 'TokensSettled',
+    anonymous: false,
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'marketId',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        internalType: 'uint256',
+        name: 'currencyAmount',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        internalType: 'uint256',
+        name: 'outcomeTokensSold',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    type: 'event',
+    name: 'TokensSold',
     anonymous: false,
   },
   {
@@ -483,5 +545,352 @@ export const PredictX_ABI = [
     type: 'function',
     name: 'unresolvable',
     outputs: [{ internalType: 'bytes', name: '', type: 'bytes' }],
+  },
+];
+
+export const USDC_ABI = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: '_tokenName', type: 'string', internalType: 'string' },
+      { name: '_tokenSymbol', type: 'string', internalType: 'string' },
+      { name: '_tokenDecimals', type: 'uint8', internalType: 'uint8' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'addBurner',
+    inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'addMember',
+    inputs: [
+      { name: 'roleId', type: 'uint256', internalType: 'uint256' },
+      { name: 'newMember', type: 'address', internalType: 'address' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'addMinter',
+    inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'allowance',
+    inputs: [
+      { name: 'owner', type: 'address', internalType: 'address' },
+      { name: 'spender', type: 'address', internalType: 'address' },
+    ],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'approve',
+    inputs: [
+      { name: 'spender', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'balanceOf',
+    inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'burn',
+    inputs: [{ name: 'value', type: 'uint256', internalType: 'uint256' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'burnFrom',
+    inputs: [
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'value', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'decimals',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint8', internalType: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'decreaseAllowance',
+    inputs: [
+      { name: 'spender', type: 'address', internalType: 'address' },
+      {
+        name: 'subtractedValue',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'getMember',
+    inputs: [{ name: 'roleId', type: 'uint256', internalType: 'uint256' }],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'holdsRole',
+    inputs: [
+      { name: 'roleId', type: 'uint256', internalType: 'uint256' },
+      {
+        name: 'memberToCheck',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'increaseAllowance',
+    inputs: [
+      { name: 'spender', type: 'address', internalType: 'address' },
+      { name: 'addedValue', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'mint',
+    inputs: [
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'value', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'name',
+    inputs: [],
+    outputs: [{ name: '', type: 'string', internalType: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'removeMember',
+    inputs: [
+      { name: 'roleId', type: 'uint256', internalType: 'uint256' },
+      {
+        name: 'memberToRemove',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'renounceMembership',
+    inputs: [{ name: 'roleId', type: 'uint256', internalType: 'uint256' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'resetMember',
+    inputs: [
+      { name: 'roleId', type: 'uint256', internalType: 'uint256' },
+      { name: 'newMember', type: 'address', internalType: 'address' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'resetOwner',
+    inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'symbol',
+    inputs: [],
+    outputs: [{ name: '', type: 'string', internalType: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'totalSupply',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'transfer',
+    inputs: [
+      { name: 'to', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'transferFrom',
+    inputs: [
+      { name: 'from', type: 'address', internalType: 'address' },
+      { name: 'to', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'AddedSharedMember',
+    inputs: [
+      {
+        name: 'roleId',
+        type: 'uint256',
+        indexed: true,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newMember',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'manager',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Approval',
+    inputs: [
+      {
+        name: 'owner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'spender',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'value',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RemovedSharedMember',
+    inputs: [
+      {
+        name: 'roleId',
+        type: 'uint256',
+        indexed: true,
+        internalType: 'uint256',
+      },
+      {
+        name: 'oldMember',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'manager',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'ResetExclusiveMember',
+    inputs: [
+      {
+        name: 'roleId',
+        type: 'uint256',
+        indexed: true,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newMember',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'manager',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Transfer',
+    inputs: [
+      {
+        name: 'from',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'to',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'value',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
   },
 ];

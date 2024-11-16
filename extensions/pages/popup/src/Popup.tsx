@@ -6,9 +6,11 @@ import { decodeToken } from '@web3auth/single-factor-auth';
 
 import { initWeb3Auth } from './login';
 import { generateJWTToken } from './utils';
-import { createPublicClient, createWalletClient, custom, http, toHex } from 'viem';
+import { createPublicClient, createWalletClient, custom, Hex, http, toHex } from 'viem';
 import { sepolia } from 'viem/chains';
-import { PredictX_ABI, PredictX_CONTRACT_ADDRESS } from './config';
+import { PredictX_ABI, PredictX_CONTRACT_ADDRESS, USDC_ABI, USDC_CONTRACT_ADDRESS } from './config';
+
+const DECIMAL = 1e18;
 
 type MessageRequest = {
   type: string;
@@ -65,7 +67,6 @@ const Popup = () => {
       setTimeout(async () => {
         try {
           const data = await chrome.storage.local.get(['token', 'login_type']);
-          console.log('>>> typeeee', data);
           let provid;
           if (data.login_type === 'google') {
             await web3authSFAuth?.init();
@@ -84,14 +85,11 @@ const Popup = () => {
               chain,
               transport: http(),
             });
-            console.log('>>> addresses', createMarketRequest);
-            console.log('>>>> providdd', provid);
             const client = createWalletClient({
               chain,
               transport: custom(provid!),
             });
             const addresses = await client.getAddresses();
-            console.log('>>. acount adres', addresses);
             const hash = await client.writeContract({
               account: addresses[0],
               address: PredictX_CONTRACT_ADDRESS,
@@ -102,12 +100,10 @@ const Popup = () => {
                 'no',
                 createMarketRequest.data.question,
                 toHex(createMarketRequest.data.marketId, { size: 32 }),
-                Number(createMarketRequest.data.tokenAmount),
+                Number(createMarketRequest.data.tokenAmount * DECIMAL),
               ],
             });
-            console.log('>>> hashas', hash);
             const receipt = await publicClient.waitForTransactionReceipt({ hash });
-            console.log('>>> receipttt', receipt);
             sendResponse({ success: true, data: receipt.transactionHash, request });
           }
 
@@ -118,7 +114,6 @@ const Popup = () => {
               chain,
               transport: http(),
             });
-            console.log('>>> marketId', marketId);
             const res = await publicClient.readContract({
               address: PredictX_CONTRACT_ADDRESS,
               abi: PredictX_ABI,
@@ -126,8 +121,17 @@ const Popup = () => {
               args: [toHex(marketId, { size: 32 })],
             });
             const market = (res as Array<unknown>)[0];
-            console.log('>>> market res', market);
-            sendResponse({ success: true, data: market, request });
+            const token1Balance = (res as Array<unknown>)[1];
+            const token2Balance = (res as Array<unknown>)[2];
+            sendResponse({
+              success: true,
+              data: {
+                market,
+                token1Balance: Number(token1Balance as bigint),
+                token2Balance: Number(token2Balance as bigint),
+              },
+              request,
+            });
           }
 
           if (request.type === 'vote') {
@@ -141,6 +145,15 @@ const Popup = () => {
               transport: custom(provid!),
             });
             const addresses = await client.getAddresses();
+            console.log('>>> coninc comd data', voteRequest);
+            const approveHash = await client.writeContract({
+              account: addresses[0],
+              address: USDC_CONTRACT_ADDRESS,
+              abi: USDC_ABI,
+              functionName: 'approve',
+              args: [PredictX_CONTRACT_ADDRESS, Number(voteRequest.data.amount) * 10 * DECIMAL],
+            });
+            await publicClient.waitForTransactionReceipt({ hash: approveHash });
             const hash = await client.writeContract({
               account: addresses[0],
               address: PredictX_CONTRACT_ADDRESS,
@@ -148,11 +161,13 @@ const Popup = () => {
               functionName: 'buy',
               args: [
                 toHex(voteRequest.data.marketId, { size: 32 }),
-                toHex(voteRequest.data.voteTokenAddress),
-                Number(voteRequest.data.amount),
+                voteRequest.data.voteTokenAddress,
+                Number(voteRequest.data.amount) * DECIMAL,
               ],
             });
+            console.log('>>> hash', hash);
             const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            console.log('>>> receipt', receipt);
             sendResponse({ success: true, data: receipt.transactionHash, request });
           }
         } catch (error) {
