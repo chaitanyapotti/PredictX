@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
-const APIURL = 'https://api.studio.thegraph.com/query/94980/predictx-base-sepolia/0.0.1'
+const APIURL = 'https://api.studio.thegraph.com/query/94980/predictx-base-sepolia/0.0.2'
 
 const client = new ApolloClient({
   uri: APIURL,
@@ -21,4 +21,23 @@ export const fetchActivityBaseSepolia = async () => {
   `;
   const data = await client.query({ query }); 
   console.log("fetch activity data:", data);
+  return data;
 };
+
+export const fetchLatestMarketBaseSepolia = async () => {
+  const query = gql`
+    query FetchMarket {
+      marketInitializeds {
+        marketId
+        description
+        outcome1
+        outcome2
+        outcome1Token
+        outcome2Token
+      }
+    }
+  `;
+  const data = await client.query({ query });
+  console.log("fetch market data", data);
+  return data;
+}

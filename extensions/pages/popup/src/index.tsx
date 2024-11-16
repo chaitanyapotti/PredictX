@@ -1,7 +1,8 @@
 import '@src/global';
 import '@src/index.css';
 import { createRoot } from 'react-dom/client';
-import Popup from '@src/Popup';
+import App from '@src/App';
+import { SessionProvider } from './contexts/SessionContext';
 
 function init() {
   const appContainer = document.querySelector('#app-container');
@@ -10,7 +11,7 @@ function init() {
   }
   const root = createRoot(appContainer);
 
-  root.render(<Popup />);
+  root.render(<SessionProvider><App /></SessionProvider>);
 }
 
 init();

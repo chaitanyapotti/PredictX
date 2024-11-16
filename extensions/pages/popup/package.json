@@ -27,6 +27,7 @@
     "@metamask/detect-provider": "^2.0.0",
     "@react-oauth/google": "^0.12.1",
     "@rhinestone/module-sdk": "^0.1.28",
+    "@web3auth/base": "^9.4.0",
     "@web3auth/ethereum-provider": "^9.4.0",
     "@web3auth/single-factor-auth": "^9.2.0",
     "buffer": "^6.0.3",
@@ -40,6 +41,7 @@
     "@extension/tsconfig": "workspace:*",
     "@extension/vite-config": "workspace:*",
     "@graphprotocol/client-cli": "^3.0.7",
+    "@metamask/providers": "^16.1.0",
     "cross-env": "^7.0.3",
     "postcss-load-config": "^6.0.1"
   },

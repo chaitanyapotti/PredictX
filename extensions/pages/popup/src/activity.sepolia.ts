@@ -21,5 +21,24 @@ export const fetchActivitySepolia = async () => {
   `;
   const data = await client.query({ query }); 
   console.log("fetch activity data:", data);
+  return data;
 };
+
+export const fetchLatestMarketSepolia = async () => {
+  const query = gql`
+    query FetchMarket {
+      marketInitializeds {
+        marketId
+        description
+        outcome1
+        outcome2
+        outcome1Token
+        outcome2Token
+      }
+    }
+  `;
+  const data = await client.query({ query });
+  console.log("fetch market data", data);
+  return data;
+}
 

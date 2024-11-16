@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Tooltip } from './Tooltip';
 
+import Logo from "../assets/logo.png";
+
 interface TweetButtonProps {
   tweetId: string;
   tweetContent: string;
@@ -71,9 +73,9 @@ export const TweetButton: React.FC<TweetButtonProps> = ({
         />
       )}
       <button
-        className="ml-2.5 cursor-pointer rounded-full border-none bg-[#1da1f2] px-2.5 py-1.5 text-white transition-colors hover:bg-[#1a91da]"
+        className="ml-2.5 cursor-pointer rounded-full border-none px-2.5 py-1.5 text-white transition-colors"
         onClick={handleClick}>
-        🎲
+        <img src={Logo} alt="logo" className='size-8 rounded-full' />
       </button>
     </div>
   );
