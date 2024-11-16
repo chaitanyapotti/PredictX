@@ -7,3 +7,5 @@
 [submodule "solidity/lib/protocol"]
 	path = solidity/lib/protocol
 	url = https://github.com/UMAprotocol/protocol
+[submodule "lib/protocol"]
+	branch = master
