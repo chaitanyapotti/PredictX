@@ -56,26 +56,29 @@ contract PredictXOwner {
         uint256 outcome2Tokens
     );
 
+    event TokensBought(bytes32 indexed marketId, address indexed account, uint256 currencyAmount, uint256 outcomeTokensBought);
+    event TokensSold(bytes32 indexed marketId, address indexed account, uint256 currencyAmount, uint256 outcomeTokensSold);
+
     constructor(
         address _currency
     ) {
         currency = IERC20(_currency);
     }
 
-    function getMarket(bytes32 marketId) public view returns (Market memory) {
-        return markets[marketId];
+    function getMarket(bytes32 marketId) public view returns (Market memory, uint256 outcome1Balance, uint256 outcome2Balance) {
+        return (markets[marketId], markets[marketId].outcome1Token.balanceOf(address(this)), markets[marketId].outcome2Token.balanceOf(address(this)));
     }
 
     function initializeMarket(
         string memory outcome1, // Short name of the first outcome.
         string memory outcome2, // Short name of the second outcome.
-        string memory description // Description of the market.
-    ) public returns (bytes32 marketId) {
+        string memory description, // Description of the market.
+        bytes32 marketId
+    ) public {
         require(bytes(outcome1).length > 0, "Empty first outcome");
         require(bytes(outcome2).length > 0, "Empty second outcome");
         require(keccak256(bytes(outcome1)) != keccak256(bytes(outcome2)), "Outcomes are the same");
         require(bytes(description).length > 0, "Empty description");
-        marketId = keccak256(abi.encode(block.number, description));
         require(markets[marketId].outcome1Token == ExpandedIERC20(address(0)), "Market already exists");
 
         // Create position tokens with this contract having minter and burner roles.
@@ -162,9 +165,18 @@ contract PredictXOwner {
         string memory outcome1, // Short name of the first outcome.
         string memory outcome2, // Short name of the second outcome.
         string memory description, // Description of the market.
-        uint256 tokensToCreate) external returns (bytes32 marketId) {
-        marketId = this.initializeMarket(outcome1, outcome2, description);
-        this.createOutcomeTokens(marketId, tokensToCreate);
+        bytes32 marketId,
+        uint256 tokensToCreate) external {
+        this.initializeMarket(outcome1, outcome2, description, marketId);
+        Market storage market = markets[marketId];
+        require(market.outcome1Token != ExpandedIERC20(address(0)), "Market does not exist");
+
+        currency.transferFrom(msg.sender, address(this), tokensToCreate);
+
+        market.outcome1Token.mint(msg.sender, tokensToCreate);
+        market.outcome2Token.mint(msg.sender, tokensToCreate);
+
+        emit TokensCreated(marketId, msg.sender, tokensToCreate);
     }
 
     // Burns equal amount of outcome1 and outcome2 tokens returning settlement currency tokens.
@@ -218,6 +230,7 @@ contract PredictXOwner {
         // require(currency.approve(address(this), currencyAmount), "approval for splits failed");
         buyingToken.transferFrom(address(this), msg.sender, outcomeTokensToBuy); // 5 left of buyToken, 20 left of sellToken (got 15 buy token)
         require(invariant == market.outcome1Token.balanceOf(address(this)) * market.outcome2Token.balanceOf(address(this)), "invariant violated");
+        emit TokensBought(marketId, msg.sender, currencyAmount, outcomeTokensToBuy);
     }
 
     function sell(bytes32 marketId, address outcomeToken, uint256 currencyAmount) public {
@@ -233,5 +246,6 @@ contract PredictXOwner {
         sellingToken.burnFrom(address(this), currencyAmount); // 20-10 = 10
         require(currency.transfer(msg.sender, currencyAmount), "currency transfer failed");
         require(invariant == market.outcome1Token.balanceOf(address(this)) * market.outcome2Token.balanceOf(address(this)), "invariant violated");
+        emit TokensSold(marketId, msg.sender, currencyAmount, outcomeTokensToSell);
     }
 }
