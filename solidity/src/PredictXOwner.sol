@@ -219,16 +219,16 @@ contract PredictXOwner {
     function buy(bytes32 marketId, address outcomeToken, uint256 currencyAmount) public {
         // use fixed product market maker strategy to buy tokens
         Market storage market = markets[marketId];
-        ExpandedIERC20 buyingToken = address(market.outcome1Token) == outcomeToken ? market.outcome1Token : market.outcome2Token; // 10 yes
-        ExpandedIERC20 sellingToken = address(market.outcome1Token) == outcomeToken ? market.outcome2Token : market.outcome1Token; // 10 no
-        uint invariant = market.outcome1Token.balanceOf(address(this)) * market.outcome2Token.balanceOf(address(this)); // 100 (currency amount = 10)
-        market.outcome1Token.mint(address(this), currencyAmount); // 20
-        market.outcome2Token.mint(address(this), currencyAmount); // 20
-        uint outcomeTokensToBuy = buyingToken.balanceOf(address(this)) - (invariant / sellingToken.balanceOf(address(this))); // 20 - (100 / 20) = 15
+        ExpandedIERC20 buyingToken = address(market.outcome1Token) == outcomeToken ? market.outcome1Token : market.outcome2Token; // 100 yes
+        ExpandedIERC20 sellingToken = address(market.outcome1Token) == outcomeToken ? market.outcome2Token : market.outcome1Token; // 100 no
+        uint invariant = market.outcome1Token.balanceOf(address(this)) * market.outcome2Token.balanceOf(address(this)); // 100*100 (currency amount = 10)
+        market.outcome1Token.mint(address(this), currencyAmount); // 110
+        market.outcome2Token.mint(address(this), currencyAmount); // 110
+        uint outcomeTokensToBuy = buyingToken.balanceOf(address(this)) - (invariant / sellingToken.balanceOf(address(this))); // 110 - (10000 / 110) = 19.09
         require(outcomeTokensToBuy > 0, "no tokens to buy");
         require(currency.transferFrom(msg.sender, address(this), currencyAmount), "cost transfer failed");
         // require(currency.approve(address(this), currencyAmount), "approval for splits failed");
-        buyingToken.transferFrom(address(this), msg.sender, outcomeTokensToBuy); // 5 left of buyToken, 20 left of sellToken (got 15 buy token)
+        buyingToken.transfer(msg.sender, outcomeTokensToBuy); // 5 left of buyToken, 20 left of sellToken (got 15 buy token)
         require(invariant == market.outcome1Token.balanceOf(address(this)) * market.outcome2Token.balanceOf(address(this)), "invariant violated");
         emit TokensBought(marketId, msg.sender, currencyAmount, outcomeTokensToBuy);
     }
