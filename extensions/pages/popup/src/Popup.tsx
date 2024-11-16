@@ -6,8 +6,17 @@ import { decodeToken } from '@web3auth/single-factor-auth';
 
 import { initWeb3Auth } from './login';
 import { generateJWTToken } from './utils';
-import { createPublicClient, createWalletClient, custom, Hex, http, toHex } from 'viem';
-import { sepolia } from 'viem/chains';
+import type { Hex } from 'viem';
+import { createPublicClient, createWalletClient, custom, http, toHex } from 'viem';
+import {
+  sepolia,
+  baseSepolia,
+  polygonAmoy,
+  bitkubTestnet,
+  flowTestnet,
+  mantleSepoliaTestnet,
+  lineaSepolia,
+} from 'viem/chains';
 import { PredictX_ABI, PredictX_CONTRACT_ADDRESS, USDC_ABI, USDC_CONTRACT_ADDRESS } from './config';
 
 const DECIMAL = 1e18;
@@ -42,6 +51,12 @@ type VoteRequest = {
 };
 
 const chain = sepolia;
+// const chain = baseSepolia;
+// const chain = polygonAmoy;
+// const chain = bitkubTestnet;
+// const chain = mantleSepoliaTestnet;
+// const chain = lineaSepolia;
+// const chain = flowTestnet;
 
 const Popup = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -49,14 +64,14 @@ const Popup = () => {
   const metamaskProvider = useMemo(() => createMetaMaskProvider(), []);
   const web3authSFAuth = useMemo(() => initWeb3Auth(), []);
 
-  const provider = useMemo(() => {
-    if (loginType === 'google') {
-      return web3authSFAuth?.provider;
-    } else if (loginType === 'metamask') {
-      return metamaskProvider;
-    }
-    return null;
-  }, [loginType, web3authSFAuth, metamaskProvider]);
+  // const provider = useMemo(() => {
+  //   if (loginType === 'google') {
+  //     return web3authSFAuth?.provider;
+  //   } else if (loginType === 'metamask') {
+  //     return metamaskProvider;
+  //   }
+  //   return null;
+  // }, [loginType, web3authSFAuth, metamaskProvider]);
 
   useEffect(() => {
     const listener = (
@@ -92,7 +107,7 @@ const Popup = () => {
             const addresses = await client.getAddresses();
             const hash = await client.writeContract({
               account: addresses[0],
-              address: PredictX_CONTRACT_ADDRESS,
+              address: PredictX_CONTRACT_ADDRESS as Hex,
               abi: PredictX_ABI,
               functionName: 'initializeMarketAndCreateOutcomeTokens',
               args: [
@@ -115,7 +130,7 @@ const Popup = () => {
               transport: http(),
             });
             const res = await publicClient.readContract({
-              address: PredictX_CONTRACT_ADDRESS,
+              address: PredictX_CONTRACT_ADDRESS as Hex,
               abi: PredictX_ABI,
               functionName: 'getMarket',
               args: [toHex(marketId, { size: 32 })],
@@ -148,7 +163,7 @@ const Popup = () => {
             console.log('>>> coninc comd data', voteRequest);
             const approveHash = await client.writeContract({
               account: addresses[0],
-              address: USDC_CONTRACT_ADDRESS,
+              address: USDC_CONTRACT_ADDRESS as Hex,
               abi: USDC_ABI,
               functionName: 'approve',
               args: [PredictX_CONTRACT_ADDRESS, Number(voteRequest.data.amount) * 10 * DECIMAL],

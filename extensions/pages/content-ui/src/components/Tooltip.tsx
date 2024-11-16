@@ -106,8 +106,9 @@ export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, userVot
   const token2B = token2Balance ?? 0;
   const total = token1B + token2B;
 
-  const token1Odd = total ? (token1B / total) * 100 : 50;
-  const token2Odd = total ? (token2B / total) * 100 : 50;
+  // odd is reverse of percentage
+  const token2Odd = total ? (token1B / total) * 100 : 50;
+  const token1Odd = total ? (token2B / total) * 100 : 50;
 
   const handleVote = async (data: VoteFormData) => {
     try {
@@ -164,12 +165,12 @@ export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, userVot
                     <button
                       onClick={() => setVoteType('yes')}
                       className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600 disabled:opacity-50">
-                      Yes {`(${token1Odd}%)`}
+                      Yes {`(${token1Odd.toFixed(2)}%)`}
                     </button>
                     <button
                       onClick={() => setVoteType('no')}
                       className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 disabled:opacity-50">
-                      No {`(${token2Odd}%)`}
+                      No {`(${token2Odd.toFixed(2)}%)`}
                     </button>
                   </div>
                 ) : (
