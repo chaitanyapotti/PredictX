@@ -8,7 +8,7 @@ dataSources:
     name: predictx-base-sepolia
     network: base-sepolia
     source:
-      address: "0x61127b1e63E282041ac286c3eFa3151Db0bfCa5e"
+      address: "0xBa0e0c1212D3b9cD54a1ae90BA66ABab04Dd7A06"
       abi: predictx-base-sepolia
       startBlock: 0
     mapping:

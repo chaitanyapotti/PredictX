@@ -19,8 +19,8 @@ import { path as pathModule } from '@graphql-mesh/cross-helpers';
 import { ImportFn } from '@graphql-mesh/types';
 import type { PredictXSepoliaTypes } from './sources/predict-x-sepolia/types';
 import type { PredictXBaseSepoliaTypes } from './sources/predict-x-base-sepolia/types';
-import * as importedModule$0 from "./sources/predict-x-sepolia/introspectionSchema";
-import * as importedModule$1 from "./sources/predict-x-base-sepolia/introspectionSchema";
+import * as importedModule$0 from "./sources/predict-x-base-sepolia/introspectionSchema";
+import * as importedModule$1 from "./sources/predict-x-sepolia/introspectionSchema";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -1641,10 +1641,10 @@ const baseDir = pathModule.join(typeof __dirname === 'string' ? __dirname : '/',
 const importFn: ImportFn = <T>(moduleId: string) => {
   const relativeModuleId = (pathModule.isAbsolute(moduleId) ? pathModule.relative(baseDir, moduleId) : moduleId).split('\\').join('/').replace(baseDir + '/', '');
   switch(relativeModuleId) {
-    case ".graphclient/sources/predict-x-sepolia/introspectionSchema":
+    case ".graphclient/sources/predict-x-base-sepolia/introspectionSchema":
       return Promise.resolve(importedModule$0) as T;
     
-    case ".graphclient/sources/predict-x-base-sepolia/introspectionSchema":
+    case ".graphclient/sources/predict-x-sepolia/introspectionSchema":
       return Promise.resolve(importedModule$1) as T;
     
     default:
@@ -1692,7 +1692,7 @@ const predictXSepoliaHandler = new GraphqlHandler({
             });
 const predictXBaseSepoliaHandler = new GraphqlHandler({
               name: "predict-x-base-sepolia",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/94980/predictx-base-sepolia/0.0.1"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/94980/predictx-base-sepolia/0.0.2"},
               baseDir,
               cache,
               pubsub,

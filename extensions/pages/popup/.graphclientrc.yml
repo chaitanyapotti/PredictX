@@ -7,7 +7,7 @@ sources:
   - name: predict-x-base-sepolia
     handler:
       graphql:
-        endpoint: https://api.studio.thegraph.com/query/94980/predictx-base-sepolia/0.0.1
+        endpoint: https://api.studio.thegraph.com/query/94980/predictx-base-sepolia/0.0.2
 plugins:
   - pollingLive:
       defaultInterval: 1000
