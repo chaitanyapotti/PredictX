@@ -7,7 +7,7 @@ import {
   TokensRedeemed as TokensRedeemedEvent,
   TokensSettled as TokensSettledEvent,
   TokensSold as TokensSoldEvent
-} from "../generated/predictx-base-sepolia/predictx-base-sepolia"
+} from "../generated/predictx-base-sepolia/predictx_base_sepolia"
 import {
   MarketAsserted,
   MarketInitialized,

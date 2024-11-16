@@ -26,7 +26,7 @@ dataSources:
         - TokensSold
       abis:
         - name: predictx-base-sepolia
-          file: ./abis/predictx-base-sepolia.json
+          file: ./contract-abi.json
       eventHandlers:
         - event: MarketAsserted(indexed bytes32,string,indexed bytes32)
           handler: handleMarketAsserted
