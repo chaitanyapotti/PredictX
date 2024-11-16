@@ -42,7 +42,6 @@ const manifest = {
         js: ['content/index.iife.js'],
       },
       {
-        world: "MAIN",
         matches: ["https://twitter.com/*", "https://x.com/*"],
         js: ['content-ui/index.iife.js'],
       },

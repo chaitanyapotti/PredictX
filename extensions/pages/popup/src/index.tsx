@@ -10,9 +10,7 @@ function init() {
   }
   const root = createRoot(appContainer);
 
-  root.render(
-      <Popup />
-  );
+  root.render(<Popup />);
 }
 
 init();
