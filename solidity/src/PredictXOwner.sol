@@ -56,6 +56,9 @@ contract PredictXOwner {
         uint256 outcome2Tokens
     );
 
+    event TokensBought(bytes32 indexed marketId, address indexed account, uint256 currencyAmount, uint256 outcomeTokensBought);
+    event TokensSold(bytes32 indexed marketId, address indexed account, uint256 currencyAmount, uint256 outcomeTokensSold);
+
     constructor(
         address _currency
     ) {
@@ -227,6 +230,7 @@ contract PredictXOwner {
         // require(currency.approve(address(this), currencyAmount), "approval for splits failed");
         buyingToken.transferFrom(address(this), msg.sender, outcomeTokensToBuy); // 5 left of buyToken, 20 left of sellToken (got 15 buy token)
         require(invariant == market.outcome1Token.balanceOf(address(this)) * market.outcome2Token.balanceOf(address(this)), "invariant violated");
+        emit TokensBought(marketId, msg.sender, currencyAmount, outcomeTokensToBuy);
     }
 
     function sell(bytes32 marketId, address outcomeToken, uint256 currencyAmount) public {
@@ -242,5 +246,6 @@ contract PredictXOwner {
         sellingToken.burnFrom(address(this), currencyAmount); // 20-10 = 10
         require(currency.transfer(msg.sender, currencyAmount), "currency transfer failed");
         require(invariant == market.outcome1Token.balanceOf(address(this)) * market.outcome2Token.balanceOf(address(this)), "invariant violated");
+        emit TokensSold(marketId, msg.sender, currencyAmount, outcomeTokensToSell);
     }
 }
