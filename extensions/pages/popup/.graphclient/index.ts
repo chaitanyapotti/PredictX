@@ -11,14 +11,16 @@ import { MeshResolvedSource } from '@graphql-mesh/runtime';
 import { MeshTransform, MeshPlugin } from '@graphql-mesh/types';
 import GraphqlHandler from "@graphql-mesh/graphql"
 import UsePollingLive from "@graphprotocol/client-polling-live";
-import BareMerger from "@graphql-mesh/merger-bare";
+import StitchingMerger from "@graphql-mesh/merger-stitching";
 import { createMeshHTTPHandler, MeshHTTPHandler } from '@graphql-mesh/http';
 import { getMesh, ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext, MeshInstance } from '@graphql-mesh/runtime';
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
 import { ImportFn } from '@graphql-mesh/types';
-import type { PredictXTypes } from './sources/predict-x/types';
-import * as importedModule$0 from "./sources/predict-x/introspectionSchema";
+import type { PredictXSepoliaTypes } from './sources/predict-x-sepolia/types';
+import type { PredictXBaseSepoliaTypes } from './sources/predict-x-base-sepolia/types';
+import * as importedModule$0 from "./sources/predict-x-sepolia/introspectionSchema";
+import * as importedModule$1 from "./sources/predict-x-base-sepolia/introspectionSchema";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -42,6 +44,346 @@ export type Scalars = {
   Bytes: { input: any; output: any; }
   Int8: { input: any; output: any; }
   Timestamp: { input: any; output: any; }
+};
+
+export type Query = {
+  marketAsserted?: Maybe<MarketAsserted>;
+  marketAsserteds: Array<MarketAsserted>;
+  marketInitialized?: Maybe<MarketInitialized>;
+  marketInitializeds: Array<MarketInitialized>;
+  marketResolved?: Maybe<MarketResolved>;
+  marketResolveds: Array<MarketResolved>;
+  tokensBought?: Maybe<TokensBought>;
+  tokensBoughts: Array<TokensBought>;
+  tokensCreated?: Maybe<TokensCreated>;
+  tokensCreateds: Array<TokensCreated>;
+  tokensRedeemed?: Maybe<TokensRedeemed>;
+  tokensRedeemeds: Array<TokensRedeemed>;
+  tokensSettled?: Maybe<TokensSettled>;
+  tokensSettleds: Array<TokensSettled>;
+  tokensSold?: Maybe<TokensSold>;
+  tokensSolds: Array<TokensSold>;
+  /** Access to subgraph metadata */
+  _meta?: Maybe<_Meta_>;
+};
+
+
+export type QuerymarketAssertedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerymarketAssertedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<MarketAsserted_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<MarketAsserted_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerymarketInitializedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerymarketInitializedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<MarketInitialized_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<MarketInitialized_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerymarketResolvedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerymarketResolvedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<MarketResolved_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<MarketResolved_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensBoughtArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensBoughtsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensBought_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensBought_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensCreatedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensCreatedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensCreated_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensCreated_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensRedeemedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensRedeemedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensRedeemed_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensRedeemed_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensSettledArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensSettledsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensSettled_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensSettled_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensSoldArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerytokensSoldsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensSold_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensSold_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Query_metaArgs = {
+  block?: InputMaybe<Block_height>;
+};
+
+export type Subscription = {
+  marketAsserted?: Maybe<MarketAsserted>;
+  marketAsserteds: Array<MarketAsserted>;
+  marketInitialized?: Maybe<MarketInitialized>;
+  marketInitializeds: Array<MarketInitialized>;
+  marketResolved?: Maybe<MarketResolved>;
+  marketResolveds: Array<MarketResolved>;
+  tokensBought?: Maybe<TokensBought>;
+  tokensBoughts: Array<TokensBought>;
+  tokensCreated?: Maybe<TokensCreated>;
+  tokensCreateds: Array<TokensCreated>;
+  tokensRedeemed?: Maybe<TokensRedeemed>;
+  tokensRedeemeds: Array<TokensRedeemed>;
+  tokensSettled?: Maybe<TokensSettled>;
+  tokensSettleds: Array<TokensSettled>;
+  tokensSold?: Maybe<TokensSold>;
+  tokensSolds: Array<TokensSold>;
+  /** Access to subgraph metadata */
+  _meta?: Maybe<_Meta_>;
+};
+
+
+export type SubscriptionmarketAssertedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionmarketAssertedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<MarketAsserted_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<MarketAsserted_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionmarketInitializedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionmarketInitializedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<MarketInitialized_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<MarketInitialized_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionmarketResolvedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionmarketResolvedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<MarketResolved_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<MarketResolved_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensBoughtArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensBoughtsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensBought_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensBought_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensCreatedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensCreatedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensCreated_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensCreated_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensRedeemedArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensRedeemedsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensRedeemed_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensRedeemed_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensSettledArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensSettledsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensSettled_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensSettled_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensSoldArgs = {
+  id: Scalars['ID']['input'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptiontokensSoldsArgs = {
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokensSold_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<TokensSold_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscription_metaArgs = {
+  block?: InputMaybe<Block_height>;
 };
 
 export type Aggregation_interval =
@@ -390,346 +732,6 @@ export type MarketResolved_orderBy =
 export type OrderDirection =
   | 'asc'
   | 'desc';
-
-export type Query = {
-  marketAsserted?: Maybe<MarketAsserted>;
-  marketAsserteds: Array<MarketAsserted>;
-  marketInitialized?: Maybe<MarketInitialized>;
-  marketInitializeds: Array<MarketInitialized>;
-  marketResolved?: Maybe<MarketResolved>;
-  marketResolveds: Array<MarketResolved>;
-  tokensBought?: Maybe<TokensBought>;
-  tokensBoughts: Array<TokensBought>;
-  tokensCreated?: Maybe<TokensCreated>;
-  tokensCreateds: Array<TokensCreated>;
-  tokensRedeemed?: Maybe<TokensRedeemed>;
-  tokensRedeemeds: Array<TokensRedeemed>;
-  tokensSettled?: Maybe<TokensSettled>;
-  tokensSettleds: Array<TokensSettled>;
-  tokensSold?: Maybe<TokensSold>;
-  tokensSolds: Array<TokensSold>;
-  /** Access to subgraph metadata */
-  _meta?: Maybe<_Meta_>;
-};
-
-
-export type QuerymarketAssertedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerymarketAssertedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<MarketAsserted_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<MarketAsserted_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerymarketInitializedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerymarketInitializedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<MarketInitialized_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<MarketInitialized_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerymarketResolvedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerymarketResolvedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<MarketResolved_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<MarketResolved_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensBoughtArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensBoughtsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensBought_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensBought_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensCreatedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensCreatedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensCreated_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensCreated_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensRedeemedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensRedeemedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensRedeemed_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensRedeemed_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensSettledArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensSettledsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensSettled_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensSettled_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensSoldArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytokensSoldsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensSold_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensSold_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Query_metaArgs = {
-  block?: InputMaybe<Block_height>;
-};
-
-export type Subscription = {
-  marketAsserted?: Maybe<MarketAsserted>;
-  marketAsserteds: Array<MarketAsserted>;
-  marketInitialized?: Maybe<MarketInitialized>;
-  marketInitializeds: Array<MarketInitialized>;
-  marketResolved?: Maybe<MarketResolved>;
-  marketResolveds: Array<MarketResolved>;
-  tokensBought?: Maybe<TokensBought>;
-  tokensBoughts: Array<TokensBought>;
-  tokensCreated?: Maybe<TokensCreated>;
-  tokensCreateds: Array<TokensCreated>;
-  tokensRedeemed?: Maybe<TokensRedeemed>;
-  tokensRedeemeds: Array<TokensRedeemed>;
-  tokensSettled?: Maybe<TokensSettled>;
-  tokensSettleds: Array<TokensSettled>;
-  tokensSold?: Maybe<TokensSold>;
-  tokensSolds: Array<TokensSold>;
-  /** Access to subgraph metadata */
-  _meta?: Maybe<_Meta_>;
-};
-
-
-export type SubscriptionmarketAssertedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionmarketAssertedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<MarketAsserted_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<MarketAsserted_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionmarketInitializedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionmarketInitializedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<MarketInitialized_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<MarketInitialized_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionmarketResolvedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionmarketResolvedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<MarketResolved_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<MarketResolved_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensBoughtArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensBoughtsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensBought_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensBought_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensCreatedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensCreatedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensCreated_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensCreated_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensRedeemedArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensRedeemedsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensRedeemed_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensRedeemed_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensSettledArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensSettledsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensSettled_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensSettled_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensSoldArgs = {
-  id: Scalars['ID']['input'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontokensSoldsArgs = {
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<TokensSold_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TokensSold_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscription_metaArgs = {
-  block?: InputMaybe<Block_height>;
-};
 
 export type TokensBought = {
   id: Scalars['Bytes']['output'];
@@ -1340,6 +1342,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  Query: ResolverTypeWrapper<{}>;
+  Subscription: ResolverTypeWrapper<{}>;
   Aggregation_interval: Aggregation_interval;
   BigDecimal: ResolverTypeWrapper<Scalars['BigDecimal']['output']>;
   BigInt: ResolverTypeWrapper<Scalars['BigInt']['output']>;
@@ -1361,9 +1365,7 @@ export type ResolversTypes = ResolversObject<{
   MarketResolved_filter: MarketResolved_filter;
   MarketResolved_orderBy: MarketResolved_orderBy;
   OrderDirection: OrderDirection;
-  Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
-  Subscription: ResolverTypeWrapper<{}>;
   Timestamp: ResolverTypeWrapper<Scalars['Timestamp']['output']>;
   TokensBought: ResolverTypeWrapper<TokensBought>;
   TokensBought_filter: TokensBought_filter;
@@ -1387,6 +1389,8 @@ export type ResolversTypes = ResolversObject<{
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
+  Query: {};
+  Subscription: {};
   BigDecimal: Scalars['BigDecimal']['output'];
   BigInt: Scalars['BigInt']['output'];
   BlockChangedFilter: BlockChangedFilter;
@@ -1403,9 +1407,7 @@ export type ResolversParentTypes = ResolversObject<{
   MarketInitialized_filter: MarketInitialized_filter;
   MarketResolved: MarketResolved;
   MarketResolved_filter: MarketResolved_filter;
-  Query: {};
   String: Scalars['String']['output'];
-  Subscription: {};
   Timestamp: Scalars['Timestamp']['output'];
   TokensBought: TokensBought;
   TokensBought_filter: TokensBought_filter;
@@ -1436,6 +1438,46 @@ export type derivedFromDirectiveArgs = {
 };
 
 export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  marketAsserted?: Resolver<Maybe<ResolversTypes['MarketAsserted']>, ParentType, ContextType, RequireFields<QuerymarketAssertedArgs, 'id' | 'subgraphError'>>;
+  marketAsserteds?: Resolver<Array<ResolversTypes['MarketAsserted']>, ParentType, ContextType, RequireFields<QuerymarketAssertedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  marketInitialized?: Resolver<Maybe<ResolversTypes['MarketInitialized']>, ParentType, ContextType, RequireFields<QuerymarketInitializedArgs, 'id' | 'subgraphError'>>;
+  marketInitializeds?: Resolver<Array<ResolversTypes['MarketInitialized']>, ParentType, ContextType, RequireFields<QuerymarketInitializedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  marketResolved?: Resolver<Maybe<ResolversTypes['MarketResolved']>, ParentType, ContextType, RequireFields<QuerymarketResolvedArgs, 'id' | 'subgraphError'>>;
+  marketResolveds?: Resolver<Array<ResolversTypes['MarketResolved']>, ParentType, ContextType, RequireFields<QuerymarketResolvedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensBought?: Resolver<Maybe<ResolversTypes['TokensBought']>, ParentType, ContextType, RequireFields<QuerytokensBoughtArgs, 'id' | 'subgraphError'>>;
+  tokensBoughts?: Resolver<Array<ResolversTypes['TokensBought']>, ParentType, ContextType, RequireFields<QuerytokensBoughtsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensCreated?: Resolver<Maybe<ResolversTypes['TokensCreated']>, ParentType, ContextType, RequireFields<QuerytokensCreatedArgs, 'id' | 'subgraphError'>>;
+  tokensCreateds?: Resolver<Array<ResolversTypes['TokensCreated']>, ParentType, ContextType, RequireFields<QuerytokensCreatedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensRedeemed?: Resolver<Maybe<ResolversTypes['TokensRedeemed']>, ParentType, ContextType, RequireFields<QuerytokensRedeemedArgs, 'id' | 'subgraphError'>>;
+  tokensRedeemeds?: Resolver<Array<ResolversTypes['TokensRedeemed']>, ParentType, ContextType, RequireFields<QuerytokensRedeemedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensSettled?: Resolver<Maybe<ResolversTypes['TokensSettled']>, ParentType, ContextType, RequireFields<QuerytokensSettledArgs, 'id' | 'subgraphError'>>;
+  tokensSettleds?: Resolver<Array<ResolversTypes['TokensSettled']>, ParentType, ContextType, RequireFields<QuerytokensSettledsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensSold?: Resolver<Maybe<ResolversTypes['TokensSold']>, ParentType, ContextType, RequireFields<QuerytokensSoldArgs, 'id' | 'subgraphError'>>;
+  tokensSolds?: Resolver<Array<ResolversTypes['TokensSold']>, ParentType, ContextType, RequireFields<QuerytokensSoldsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
+}>;
+
+export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
+  marketAsserted?: SubscriptionResolver<Maybe<ResolversTypes['MarketAsserted']>, "marketAsserted", ParentType, ContextType, RequireFields<SubscriptionmarketAssertedArgs, 'id' | 'subgraphError'>>;
+  marketAsserteds?: SubscriptionResolver<Array<ResolversTypes['MarketAsserted']>, "marketAsserteds", ParentType, ContextType, RequireFields<SubscriptionmarketAssertedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  marketInitialized?: SubscriptionResolver<Maybe<ResolversTypes['MarketInitialized']>, "marketInitialized", ParentType, ContextType, RequireFields<SubscriptionmarketInitializedArgs, 'id' | 'subgraphError'>>;
+  marketInitializeds?: SubscriptionResolver<Array<ResolversTypes['MarketInitialized']>, "marketInitializeds", ParentType, ContextType, RequireFields<SubscriptionmarketInitializedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  marketResolved?: SubscriptionResolver<Maybe<ResolversTypes['MarketResolved']>, "marketResolved", ParentType, ContextType, RequireFields<SubscriptionmarketResolvedArgs, 'id' | 'subgraphError'>>;
+  marketResolveds?: SubscriptionResolver<Array<ResolversTypes['MarketResolved']>, "marketResolveds", ParentType, ContextType, RequireFields<SubscriptionmarketResolvedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensBought?: SubscriptionResolver<Maybe<ResolversTypes['TokensBought']>, "tokensBought", ParentType, ContextType, RequireFields<SubscriptiontokensBoughtArgs, 'id' | 'subgraphError'>>;
+  tokensBoughts?: SubscriptionResolver<Array<ResolversTypes['TokensBought']>, "tokensBoughts", ParentType, ContextType, RequireFields<SubscriptiontokensBoughtsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensCreated?: SubscriptionResolver<Maybe<ResolversTypes['TokensCreated']>, "tokensCreated", ParentType, ContextType, RequireFields<SubscriptiontokensCreatedArgs, 'id' | 'subgraphError'>>;
+  tokensCreateds?: SubscriptionResolver<Array<ResolversTypes['TokensCreated']>, "tokensCreateds", ParentType, ContextType, RequireFields<SubscriptiontokensCreatedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensRedeemed?: SubscriptionResolver<Maybe<ResolversTypes['TokensRedeemed']>, "tokensRedeemed", ParentType, ContextType, RequireFields<SubscriptiontokensRedeemedArgs, 'id' | 'subgraphError'>>;
+  tokensRedeemeds?: SubscriptionResolver<Array<ResolversTypes['TokensRedeemed']>, "tokensRedeemeds", ParentType, ContextType, RequireFields<SubscriptiontokensRedeemedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensSettled?: SubscriptionResolver<Maybe<ResolversTypes['TokensSettled']>, "tokensSettled", ParentType, ContextType, RequireFields<SubscriptiontokensSettledArgs, 'id' | 'subgraphError'>>;
+  tokensSettleds?: SubscriptionResolver<Array<ResolversTypes['TokensSettled']>, "tokensSettleds", ParentType, ContextType, RequireFields<SubscriptiontokensSettledsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tokensSold?: SubscriptionResolver<Maybe<ResolversTypes['TokensSold']>, "tokensSold", ParentType, ContextType, RequireFields<SubscriptiontokensSoldArgs, 'id' | 'subgraphError'>>;
+  tokensSolds?: SubscriptionResolver<Array<ResolversTypes['TokensSold']>, "tokensSolds", ParentType, ContextType, RequireFields<SubscriptiontokensSoldsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
+}>;
 
 export interface BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigDecimal'], any> {
   name: 'BigDecimal';
@@ -1485,46 +1527,6 @@ export type MarketResolvedResolvers<ContextType = MeshContext, ParentType extend
   blockTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   transactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  marketAsserted?: Resolver<Maybe<ResolversTypes['MarketAsserted']>, ParentType, ContextType, RequireFields<QuerymarketAssertedArgs, 'id' | 'subgraphError'>>;
-  marketAsserteds?: Resolver<Array<ResolversTypes['MarketAsserted']>, ParentType, ContextType, RequireFields<QuerymarketAssertedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  marketInitialized?: Resolver<Maybe<ResolversTypes['MarketInitialized']>, ParentType, ContextType, RequireFields<QuerymarketInitializedArgs, 'id' | 'subgraphError'>>;
-  marketInitializeds?: Resolver<Array<ResolversTypes['MarketInitialized']>, ParentType, ContextType, RequireFields<QuerymarketInitializedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  marketResolved?: Resolver<Maybe<ResolversTypes['MarketResolved']>, ParentType, ContextType, RequireFields<QuerymarketResolvedArgs, 'id' | 'subgraphError'>>;
-  marketResolveds?: Resolver<Array<ResolversTypes['MarketResolved']>, ParentType, ContextType, RequireFields<QuerymarketResolvedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensBought?: Resolver<Maybe<ResolversTypes['TokensBought']>, ParentType, ContextType, RequireFields<QuerytokensBoughtArgs, 'id' | 'subgraphError'>>;
-  tokensBoughts?: Resolver<Array<ResolversTypes['TokensBought']>, ParentType, ContextType, RequireFields<QuerytokensBoughtsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensCreated?: Resolver<Maybe<ResolversTypes['TokensCreated']>, ParentType, ContextType, RequireFields<QuerytokensCreatedArgs, 'id' | 'subgraphError'>>;
-  tokensCreateds?: Resolver<Array<ResolversTypes['TokensCreated']>, ParentType, ContextType, RequireFields<QuerytokensCreatedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensRedeemed?: Resolver<Maybe<ResolversTypes['TokensRedeemed']>, ParentType, ContextType, RequireFields<QuerytokensRedeemedArgs, 'id' | 'subgraphError'>>;
-  tokensRedeemeds?: Resolver<Array<ResolversTypes['TokensRedeemed']>, ParentType, ContextType, RequireFields<QuerytokensRedeemedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensSettled?: Resolver<Maybe<ResolversTypes['TokensSettled']>, ParentType, ContextType, RequireFields<QuerytokensSettledArgs, 'id' | 'subgraphError'>>;
-  tokensSettleds?: Resolver<Array<ResolversTypes['TokensSettled']>, ParentType, ContextType, RequireFields<QuerytokensSettledsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensSold?: Resolver<Maybe<ResolversTypes['TokensSold']>, ParentType, ContextType, RequireFields<QuerytokensSoldArgs, 'id' | 'subgraphError'>>;
-  tokensSolds?: Resolver<Array<ResolversTypes['TokensSold']>, ParentType, ContextType, RequireFields<QuerytokensSoldsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
-}>;
-
-export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
-  marketAsserted?: SubscriptionResolver<Maybe<ResolversTypes['MarketAsserted']>, "marketAsserted", ParentType, ContextType, RequireFields<SubscriptionmarketAssertedArgs, 'id' | 'subgraphError'>>;
-  marketAsserteds?: SubscriptionResolver<Array<ResolversTypes['MarketAsserted']>, "marketAsserteds", ParentType, ContextType, RequireFields<SubscriptionmarketAssertedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  marketInitialized?: SubscriptionResolver<Maybe<ResolversTypes['MarketInitialized']>, "marketInitialized", ParentType, ContextType, RequireFields<SubscriptionmarketInitializedArgs, 'id' | 'subgraphError'>>;
-  marketInitializeds?: SubscriptionResolver<Array<ResolversTypes['MarketInitialized']>, "marketInitializeds", ParentType, ContextType, RequireFields<SubscriptionmarketInitializedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  marketResolved?: SubscriptionResolver<Maybe<ResolversTypes['MarketResolved']>, "marketResolved", ParentType, ContextType, RequireFields<SubscriptionmarketResolvedArgs, 'id' | 'subgraphError'>>;
-  marketResolveds?: SubscriptionResolver<Array<ResolversTypes['MarketResolved']>, "marketResolveds", ParentType, ContextType, RequireFields<SubscriptionmarketResolvedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensBought?: SubscriptionResolver<Maybe<ResolversTypes['TokensBought']>, "tokensBought", ParentType, ContextType, RequireFields<SubscriptiontokensBoughtArgs, 'id' | 'subgraphError'>>;
-  tokensBoughts?: SubscriptionResolver<Array<ResolversTypes['TokensBought']>, "tokensBoughts", ParentType, ContextType, RequireFields<SubscriptiontokensBoughtsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensCreated?: SubscriptionResolver<Maybe<ResolversTypes['TokensCreated']>, "tokensCreated", ParentType, ContextType, RequireFields<SubscriptiontokensCreatedArgs, 'id' | 'subgraphError'>>;
-  tokensCreateds?: SubscriptionResolver<Array<ResolversTypes['TokensCreated']>, "tokensCreateds", ParentType, ContextType, RequireFields<SubscriptiontokensCreatedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensRedeemed?: SubscriptionResolver<Maybe<ResolversTypes['TokensRedeemed']>, "tokensRedeemed", ParentType, ContextType, RequireFields<SubscriptiontokensRedeemedArgs, 'id' | 'subgraphError'>>;
-  tokensRedeemeds?: SubscriptionResolver<Array<ResolversTypes['TokensRedeemed']>, "tokensRedeemeds", ParentType, ContextType, RequireFields<SubscriptiontokensRedeemedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensSettled?: SubscriptionResolver<Maybe<ResolversTypes['TokensSettled']>, "tokensSettled", ParentType, ContextType, RequireFields<SubscriptiontokensSettledArgs, 'id' | 'subgraphError'>>;
-  tokensSettleds?: SubscriptionResolver<Array<ResolversTypes['TokensSettled']>, "tokensSettleds", ParentType, ContextType, RequireFields<SubscriptiontokensSettledsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tokensSold?: SubscriptionResolver<Maybe<ResolversTypes['TokensSold']>, "tokensSold", ParentType, ContextType, RequireFields<SubscriptiontokensSoldArgs, 'id' | 'subgraphError'>>;
-  tokensSolds?: SubscriptionResolver<Array<ResolversTypes['TokensSold']>, "tokensSolds", ParentType, ContextType, RequireFields<SubscriptiontokensSoldsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
 }>;
 
 export interface TimestampScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Timestamp'], any> {
@@ -1606,6 +1608,8 @@ export type _Meta_Resolvers<ContextType = MeshContext, ParentType extends Resolv
 }>;
 
 export type Resolvers<ContextType = MeshContext> = ResolversObject<{
+  Query?: QueryResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
   BigDecimal?: GraphQLScalarType;
   BigInt?: GraphQLScalarType;
   Bytes?: GraphQLScalarType;
@@ -1613,8 +1617,6 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   MarketAsserted?: MarketAssertedResolvers<ContextType>;
   MarketInitialized?: MarketInitializedResolvers<ContextType>;
   MarketResolved?: MarketResolvedResolvers<ContextType>;
-  Query?: QueryResolvers<ContextType>;
-  Subscription?: SubscriptionResolvers<ContextType>;
   Timestamp?: GraphQLScalarType;
   TokensBought?: TokensBoughtResolvers<ContextType>;
   TokensCreated?: TokensCreatedResolvers<ContextType>;
@@ -1631,7 +1633,7 @@ export type DirectiveResolvers<ContextType = MeshContext> = ResolversObject<{
   derivedFrom?: derivedFromDirectiveResolver<any, any, ContextType>;
 }>;
 
-export type MeshContext = PredictXTypes.Context & BaseMeshContext;
+export type MeshContext = PredictXSepoliaTypes.Context & PredictXBaseSepoliaTypes.Context & BaseMeshContext;
 
 
 const baseDir = pathModule.join(typeof __dirname === 'string' ? __dirname : '/', '..');
@@ -1639,8 +1641,11 @@ const baseDir = pathModule.join(typeof __dirname === 'string' ? __dirname : '/',
 const importFn: ImportFn = <T>(moduleId: string) => {
   const relativeModuleId = (pathModule.isAbsolute(moduleId) ? pathModule.relative(baseDir, moduleId) : moduleId).split('\\').join('/').replace(baseDir + '/', '');
   switch(relativeModuleId) {
-    case ".graphclient/sources/predict-x/introspectionSchema":
+    case ".graphclient/sources/predict-x-sepolia/introspectionSchema":
       return Promise.resolve(importedModule$0) as T;
+    
+    case ".graphclient/sources/predict-x-base-sepolia/introspectionSchema":
+      return Promise.resolve(importedModule$1) as T;
     
     default:
       return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
@@ -1672,22 +1677,38 @@ const cache = new (MeshCache as any)({
 const sources: MeshResolvedSource[] = [];
 const transforms: MeshTransform[] = [];
 const additionalEnvelopPlugins: MeshPlugin<any>[] = [];
-const predictXTransforms = [];
+const predictXSepoliaTransforms = [];
+const predictXBaseSepoliaTransforms = [];
 const additionalTypeDefs = [] as any[];
-const predictXHandler = new GraphqlHandler({
-              name: "predict-x",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/94980/predict-x-webhook/0.0.2"},
+const predictXSepoliaHandler = new GraphqlHandler({
+              name: "predict-x-sepolia",
+              config: {"endpoint":"https://api.studio.thegraph.com/query/94980/predict-x-webhook/0.0.3"},
               baseDir,
               cache,
               pubsub,
-              store: sourcesStore.child("predict-x"),
-              logger: logger.child("predict-x"),
+              store: sourcesStore.child("predict-x-sepolia"),
+              logger: logger.child("predict-x-sepolia"),
+              importFn,
+            });
+const predictXBaseSepoliaHandler = new GraphqlHandler({
+              name: "predict-x-base-sepolia",
+              config: {"endpoint":"https://api.studio.thegraph.com/query/94980/predictx-base-sepolia/0.0.1"},
+              baseDir,
+              cache,
+              pubsub,
+              store: sourcesStore.child("predict-x-base-sepolia"),
+              logger: logger.child("predict-x-base-sepolia"),
               importFn,
             });
 sources[0] = {
-          name: 'predict-x',
-          handler: predictXHandler,
-          transforms: predictXTransforms
+          name: 'predict-x-sepolia',
+          handler: predictXSepoliaHandler,
+          transforms: predictXSepoliaTransforms
+        }
+sources[1] = {
+          name: 'predict-x-base-sepolia',
+          handler: predictXBaseSepoliaHandler,
+          transforms: predictXBaseSepoliaTransforms
         }
 additionalEnvelopPlugins[0] = await UsePollingLive({
           ...({
@@ -1706,11 +1727,11 @@ additionalEnvelopPlugins[0] = await UsePollingLive({
           importFn,
         })
 const additionalResolvers = [] as any[]
-const merger = new(BareMerger as any)({
+const merger = new(StitchingMerger as any)({
         cache,
         pubsub,
-        logger: logger.child('bareMerger'),
-        store: rootStore.child('bareMerger')
+        logger: logger.child('stitchingMerger'),
+        store: rootStore.child('stitchingMerger')
       })
 
   return {

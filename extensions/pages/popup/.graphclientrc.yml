@@ -1,9 +1,13 @@
 # .graphclientrc.yml
 sources:
-  - name: predict-x
+  - name: predict-x-sepolia
     handler:
       graphql:
         endpoint: https://api.studio.thegraph.com/query/94980/predict-x-webhook/0.0.3
+  - name: predict-x-base-sepolia
+    handler:
+      graphql:
+        endpoint: https://api.studio.thegraph.com/query/94980/predictx-base-sepolia/0.0.1
 plugins:
   - pollingLive:
       defaultInterval: 1000
