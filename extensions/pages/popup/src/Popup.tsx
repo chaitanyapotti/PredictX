@@ -16,6 +16,8 @@ import {
   flowTestnet,
   mantleSepoliaTestnet,
   lineaSepolia,
+  scrollSepolia,
+  morphHolesky,
 } from 'viem/chains';
 import { PredictX_ABI, PredictX_CONTRACT_ADDRESS, USDC_ABI, USDC_CONTRACT_ADDRESS } from './config';
 
@@ -50,13 +52,15 @@ type VoteRequest = {
   };
 };
 
-const chain = sepolia;
-// const chain = baseSepolia;
+// const chain = sepolia;
+const chain = baseSepolia;
 // const chain = polygonAmoy;
 // const chain = bitkubTestnet;
 // const chain = mantleSepoliaTestnet;
 // const chain = lineaSepolia;
 // const chain = flowTestnet;
+// const chain = scrollSepolia;
+// const chain = morphHolesky;
 
 const Popup = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -105,6 +109,24 @@ const Popup = () => {
               transport: custom(provid!),
             });
             const addresses = await client.getAddresses();
+            const allowance = await publicClient.readContract({
+              account: addresses[0],
+              address: USDC_CONTRACT_ADDRESS as Hex,
+              abi: USDC_ABI,
+              functionName: 'allowance',
+              args: [addresses[0], PredictX_CONTRACT_ADDRESS],
+            });
+            const createTokenAmount = BigInt(createMarketRequest.data.tokenAmount * DECIMAL);
+            if ((allowance as bigint) < createTokenAmount) {
+              const approveHash = await client.writeContract({
+                account: addresses[0],
+                address: USDC_CONTRACT_ADDRESS as Hex,
+                abi: USDC_ABI,
+                functionName: 'approve',
+                args: [PredictX_CONTRACT_ADDRESS, Number(createTokenAmount) * 10],
+              });
+              await publicClient.waitForTransactionReceipt({ hash: approveHash });
+            }
             const hash = await client.writeContract({
               account: addresses[0],
               address: PredictX_CONTRACT_ADDRESS as Hex,
@@ -171,7 +193,7 @@ const Popup = () => {
             await publicClient.waitForTransactionReceipt({ hash: approveHash });
             const hash = await client.writeContract({
               account: addresses[0],
-              address: PredictX_CONTRACT_ADDRESS,
+              address: PredictX_CONTRACT_ADDRESS as Hex,
               abi: PredictX_ABI,
               functionName: 'buy',
               args: [
