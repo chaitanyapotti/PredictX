@@ -9,3 +9,6 @@
 	url = https://github.com/UMAprotocol/protocol
 [submodule "lib/protocol"]
 	branch = master
+[submodule "solidity/lib/v4-core"]
+	path = solidity/lib/v4-core
+	url = https://github.com/uniswap/v4-core
