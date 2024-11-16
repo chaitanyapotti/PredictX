@@ -98,7 +98,6 @@ const Login = ({ show }: { show: boolean }) => {
   const loggedInView = () => {
     return (
       <div className="fixed right-1 top-1">
-        {loginType}
         <button className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700" onClick={logout}>Logout</button>
       </div>
     );
