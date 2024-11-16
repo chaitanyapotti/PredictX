@@ -6,7 +6,42 @@ import { decodeToken } from '@web3auth/single-factor-auth';
 
 import { initWeb3Auth } from './login';
 import { generateJWTToken } from './utils';
+import { createPublicClient, createWalletClient, custom, Hex, http, toHex } from 'viem';
+import { sepolia } from 'viem/chains';
+import { PredictX_ABI, PredictX_CONTRACT_ADDRESS, USDC_ABI, USDC_CONTRACT_ADDRESS } from './config';
 
+const DECIMAL = 1e18;
+
+type MessageRequest = {
+  type: string;
+};
+
+type CreateMarketRequest = {
+  type: 'create-market';
+  data: {
+    marketId: string;
+    question: string;
+    tokenAmount: number;
+  };
+};
+
+type GetMarketRequest = {
+  type: 'get-market';
+  data: {
+    marketId: string;
+  };
+};
+
+type VoteRequest = {
+  type: 'vote';
+  data: {
+    marketId: string;
+    voteTokenAddress: string;
+    amount: number;
+  };
+};
+
+const chain = sepolia;
 
 const Popup = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,13 +59,129 @@ const Popup = () => {
   }, [loginType, web3authSFAuth, metamaskProvider]);
 
   useEffect(() => {
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-      console.log('>>> request', request);
-      if (request.type === 'create-market') {
-        console.log('>>> create market', provider);
-        sendResponse({ success: true, status: web3authSFAuth.status });
-      }
-    });
+    const listener = (
+      request: MessageRequest,
+      sender: chrome.runtime.MessageSender,
+      sendResponse: (response: unknown) => void,
+    ) => {
+      setTimeout(async () => {
+        try {
+          const data = await chrome.storage.local.get(['token', 'login_type']);
+          let provid;
+          if (data.login_type === 'google') {
+            await web3authSFAuth?.init();
+            if (web3authSFAuth.status === 'connected') {
+              provid = web3authSFAuth?.provider;
+            }
+          } else if (data.login_type === 'metamask') {
+            const accounts = await metamaskProvider.request<string[]>({ method: 'eth_accounts' });
+            if (accounts && accounts.length > 0) {
+              provid = metamaskProvider;
+            }
+          }
+          if (request.type === 'create-market') {
+            const createMarketRequest = request as CreateMarketRequest;
+            const publicClient = createPublicClient({
+              chain,
+              transport: http(),
+            });
+            const client = createWalletClient({
+              chain,
+              transport: custom(provid!),
+            });
+            const addresses = await client.getAddresses();
+            const hash = await client.writeContract({
+              account: addresses[0],
+              address: PredictX_CONTRACT_ADDRESS,
+              abi: PredictX_ABI,
+              functionName: 'initializeMarketAndCreateOutcomeTokens',
+              args: [
+                'yes',
+                'no',
+                createMarketRequest.data.question,
+                toHex(createMarketRequest.data.marketId, { size: 32 }),
+                Number(createMarketRequest.data.tokenAmount * DECIMAL),
+              ],
+            });
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            sendResponse({ success: true, data: receipt.transactionHash, request });
+          }
+
+          if (request.type === 'get-market') {
+            const getMarketRequest = request as GetMarketRequest;
+            const marketId = getMarketRequest.data.marketId;
+            const publicClient = createPublicClient({
+              chain,
+              transport: http(),
+            });
+            const res = await publicClient.readContract({
+              address: PredictX_CONTRACT_ADDRESS,
+              abi: PredictX_ABI,
+              functionName: 'getMarket',
+              args: [toHex(marketId, { size: 32 })],
+            });
+            const market = (res as Array<unknown>)[0];
+            const token1Balance = (res as Array<unknown>)[1];
+            const token2Balance = (res as Array<unknown>)[2];
+            sendResponse({
+              success: true,
+              data: {
+                market,
+                token1Balance: Number(token1Balance as bigint),
+                token2Balance: Number(token2Balance as bigint),
+              },
+              request,
+            });
+          }
+
+          if (request.type === 'vote') {
+            const voteRequest = request as VoteRequest;
+            const publicClient = createPublicClient({
+              chain,
+              transport: http(),
+            });
+            const client = createWalletClient({
+              chain,
+              transport: custom(provid!),
+            });
+            const addresses = await client.getAddresses();
+            console.log('>>> coninc comd data', voteRequest);
+            const approveHash = await client.writeContract({
+              account: addresses[0],
+              address: USDC_CONTRACT_ADDRESS,
+              abi: USDC_ABI,
+              functionName: 'approve',
+              args: [PredictX_CONTRACT_ADDRESS, Number(voteRequest.data.amount) * 10 * DECIMAL],
+            });
+            await publicClient.waitForTransactionReceipt({ hash: approveHash });
+            const hash = await client.writeContract({
+              account: addresses[0],
+              address: PredictX_CONTRACT_ADDRESS,
+              abi: PredictX_ABI,
+              functionName: 'buy',
+              args: [
+                toHex(voteRequest.data.marketId, { size: 32 }),
+                voteRequest.data.voteTokenAddress,
+                Number(voteRequest.data.amount) * DECIMAL,
+              ],
+            });
+            console.log('>>> hash', hash);
+            const receipt = await publicClient.waitForTransactionReceipt({ hash });
+            console.log('>>> receipt', receipt);
+            sendResponse({ success: true, data: receipt.transactionHash, request });
+          }
+        } catch (error) {
+          sendResponse({ success: false, error: (error as Error).message, request });
+        }
+      }, 100);
+
+      return true; // Keep the message channel open for sendResponse
+    };
+    chrome.runtime.onMessage.addListener(listener);
+
+    return () => {
+      chrome.runtime.onMessage.removeListener(listener);
+    };
   }, []);
 
   const onLogin = async (idToken: string) => {
@@ -55,7 +206,7 @@ const Popup = () => {
       setIsLoading(false);
       const accounts = await web3authSFAuth.provider?.request<never, string[]>({ method: 'eth_accounts' });
       if (accounts && accounts.length > 0) {
-        getJwtToken({ loginType: 'google', loginEmail: payload.email, publicAddress: (accounts[0] as string) });
+        getJwtToken({ loginType: 'google', loginEmail: payload.email, publicAddress: accounts[0] as string });
       }
     } catch (err) {
       // Single Factor Auth SDK throws an error if the user has already enabled MFA
@@ -72,6 +223,7 @@ const Popup = () => {
       // TODO: logout from metamask
       // metamaskProvider.disconnect();
     }
+    chrome.storage.local.remove(['token', 'login_type']);
     setLoginType(null);
   };
 
@@ -118,7 +270,15 @@ const Popup = () => {
     }
   };
 
-  const getJwtToken = async ({ loginType, loginEmail, publicAddress }: { loginType: string, loginEmail: string, publicAddress: string }) => {
+  const getJwtToken = async ({
+    loginType,
+    loginEmail,
+    publicAddress,
+  }: {
+    loginType: string;
+    loginEmail: string;
+    publicAddress: string;
+  }) => {
     if (loginType && (loginEmail || publicAddress)) {
       const data = await generateJWTToken({
         login_type: loginType as string,
@@ -141,7 +301,7 @@ const Popup = () => {
         setLoginType(data.login_type as 'google' | 'metamask');
         if (data.login_type === 'google') {
           await web3authSFAuth?.init();
-          if (web3authSFAuth.status === "connected") {
+          if (web3authSFAuth.status === 'connected') {
             setLoginType('google');
           }
         } else if (data.login_type === 'metamask') {
@@ -151,7 +311,7 @@ const Popup = () => {
           }
         }
       }
-    }
+    };
     checkIfLoggedIn();
   }, [web3authSFAuth, metamaskProvider]);
 
