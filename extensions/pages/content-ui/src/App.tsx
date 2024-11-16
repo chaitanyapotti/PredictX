@@ -3,8 +3,6 @@ import { useEffect, useState, useRef } from 'react';
 import { TweetButton } from './components/TweetButton';
 import ReactDOM from 'react-dom';
 import tailwindcssOutput from '../dist/tailwind-output.css?inline';
-import { WagmiProvider } from 'wagmi';
-import { config } from './config';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
@@ -128,12 +126,13 @@ const App: React.FC = () => {
       childList: true,
       subtree: true,
     });
+    const processTweetsCopy = processedTweets.current;
 
     return () => {
       observer.disconnect();
       // Clean up all tweets
-      tweets.forEach(tweet => cleanupTweet(tweet.id));
-      processedTweets.current.clear();
+      // tweets.forEach(tweet => cleanupTweet(tweet.id));
+      processTweetsCopy.clear();
     };
   }, []);
 
@@ -174,16 +173,14 @@ const App: React.FC = () => {
         return (
           <div key={tweet.id}>
             {ReactDOM.createPortal(
-              <WagmiProvider config={config}>
-                <QueryClientProvider client={queryClient}>
-                  <TweetButton
-                    tweetId={tweet.id}
-                    tweetContent={tweet.content}
-                    username={tweet.username}
-                    tweetHandle={tweet.handle}
-                  />
-                </QueryClientProvider>
-              </WagmiProvider>,
+              <QueryClientProvider client={queryClient}>
+                <TweetButton
+                  tweetId={tweet.id}
+                  tweetContent={tweet.content}
+                  username={tweet.username}
+                  tweetHandle={tweet.handle}
+                />
+              </QueryClientProvider>,
               container,
             )}
           </div>

@@ -1,13 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Tooltip } from './Tooltip';
-import { useAccount } from 'wagmi';
 
 interface TweetButtonProps {
   tweetId: string;
   tweetContent: string;
   username: string;
   tweetHandle: string;
-  marketExists?: boolean;
   yesOdds?: number;
   noOdds?: number;
   userVote?: 'yes' | 'no' | null;
@@ -18,12 +16,10 @@ export const TweetButton: React.FC<TweetButtonProps> = ({
   tweetContent,
   username,
   tweetHandle,
-  marketExists = false,
   yesOdds,
   noOdds,
   userVote = null,
 }) => {
-  const { isConnected } = useAccount();
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -65,9 +61,9 @@ export const TweetButton: React.FC<TweetButtonProps> = ({
       <Tooltip
         isOpen={isTooltipOpen}
         tweetContent={tweetContent}
+        tweetId={tweetId}
         onYes={handleYes}
         onNo={handleNo}
-        marketExists={marketExists}
         onCreateMarket={handleCreateMarket}
         yesOdds={yesOdds}
         noOdds={noOdds}
