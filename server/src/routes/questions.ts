@@ -1,8 +1,16 @@
 import { Router } from 'express';
+import * as crypto from 'crypto';
 import { supabaseDBClient } from '../config/supabase';
 import { verifyToken } from '../middleware/auth';
 
 const router = Router();
+
+const createHash = (text: string): string => {
+  return crypto
+    .createHash('sha256')
+    .update(text)
+    .digest('hex');
+};
 
 // Get all questions for the authenticated user
 router.get('/', verifyToken, async (req, res) => {
@@ -35,6 +43,7 @@ router.post('/', verifyToken, async (req, res) => {
       .insert([
         {
           question_text,
+          question_hash: createHash(question_text),
           post_url,
           user_answer,
           result,
