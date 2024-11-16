@@ -16,7 +16,7 @@ import "./interfaces/OptimisticOracleV3CallbackRecipientInterface.sol";
 // outside the scope of this contract. Anyone can assert 3 possible outcomes (outcome 1, outcome 2 or split) that is
 // verified through Optimistic Oracle V3. If the assertion is resolved true then holders of outcome tokens can settle
 // them for the payout currency based on resolved market outcome.
-contract PredictionMarket is OptimisticOracleV3CallbackRecipientInterface {
+contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
     using SafeERC20 for IERC20;
 
     struct Market {
