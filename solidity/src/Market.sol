@@ -13,7 +13,7 @@ contract Market is Ownable {
 
     uint256 public totalQuestions = 0;
 
-    constructor(address _simpleToken) Ownable(msg.sender) {
+    constructor(address _simpleToken) {
         simpleToken = _simpleToken;
     }
 

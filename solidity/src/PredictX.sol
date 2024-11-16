@@ -2,14 +2,13 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "./token/ExpandedERC20.sol";
-import "./interfaces/Constants.sol";
-import "./interfaces/FinderInterface.sol";
-import "./ClaimData.sol";
-import "./IAddressWhitelist.sol";
-import "./interfaces/OptimisticOracleV3Interface.sol";
-import "./interfaces/OptimisticOracleV3CallbackRecipientInterface.sol";
+import "@uma/core/contracts/common/implementation/AddressWhitelist.sol";
+import "@uma/core/contracts/common/implementation/ExpandedERC20.sol";
+import "@uma/core/contracts/data-verification-mechanism/implementation/Constants.sol";
+import "@uma/core/contracts/data-verification-mechanism/interfaces/FinderInterface.sol";
+import "@uma/core/contracts/optimistic-oracle-v3/implementation/ClaimData.sol";
+import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3Interface.sol";
+import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3CallbackRecipientInterface.sol";
 
 // This contract allows to initialize prediction markets each having a pair of binary outcome tokens. Anyone can mint
 // and burn the same amount of paired outcome tokens for the default payout currency. Trading of outcome tokens is
@@ -273,8 +272,8 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
         require(invariant == market.outcome1Token.balanceOf(address(this)) * market.outcome2Token.balanceOf(address(this)), "invariant violated");
     }
 
-    function _getCollateralWhitelist() internal view returns (IAddressWhitelist) {
-        return IAddressWhitelist(finder.getImplementationAddress(OracleInterfaces.CollateralWhitelist));
+    function _getCollateralWhitelist() internal view returns (AddressWhitelistInterface) {
+        return AddressWhitelistInterface(finder.getImplementationAddress(OracleInterfaces.CollateralWhitelist));
     }
 
     function _composeClaim(string memory outcome, bytes memory description) internal view returns (bytes memory) {
