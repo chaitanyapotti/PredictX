@@ -2,20 +2,14 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@uma/core/contracts/common/implementation/AddressWhitelist.sol";
 import "@uma/core/contracts/common/implementation/ExpandedERC20.sol";
-import "@uma/core/contracts/data-verification-mechanism/implementation/Constants.sol";
-import "@uma/core/contracts/data-verification-mechanism/interfaces/FinderInterface.sol";
-import "@uma/core/contracts/optimistic-oracle-v3/implementation/ClaimData.sol";
-import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3Interface.sol";
-import "@uma/core/contracts/optimistic-oracle-v3/interfaces/OptimisticOracleV3CallbackRecipientInterface.sol";
 
 // This contract allows to initialize prediction markets each having a pair of binary outcome tokens. Anyone can mint
 // and burn the same amount of paired outcome tokens for the default payout currency. Trading of outcome tokens is
 // outside the scope of this contract. Anyone can assert 3 possible outcomes (outcome 1, outcome 2 or split) that is
 // verified through Optimistic Oracle V3. If the assertion is resolved true then holders of outcome tokens can settle
 // them for the payout currency based on resolved market outcome.
-contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
+contract PredictXOwner {
     using SafeERC20 for IERC20;
 
     struct Market {
@@ -23,15 +17,13 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
         bytes32 assertedOutcomeId; // Hash of asserted outcome (outcome1, outcome2 or unresolvable).
         ExpandedIERC20 outcome1Token; // ERC20 token representing the value of the first outcome.
         ExpandedIERC20 outcome2Token; // ERC20 token representing the value of the second outcome.
-        uint256 reward; // Reward available for asserting true market outcome.
-        uint256 requiredBond; // Expected bond to assert market outcome (OOv3 can require higher bond).
         bytes outcome1; // Short name of the first outcome.
         bytes outcome2; // Short name of the second outcome.
         bytes description; // Description of the market.
     }
 
     struct AssertedMarket {
-        address asserter; // Address of the asserter used for reward payout.
+        address asserter; // Address of the asserter used for payout.
         bytes32 marketId; // Identifier for markets mapping.
     }
 
@@ -39,9 +31,7 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
 
     mapping(bytes32 => AssertedMarket) public assertedMarkets; // Maps assertionId to AssertedMarket.
 
-    FinderInterface public immutable finder; // UMA protocol Finder used to discover other protocol contracts.
     IERC20 public immutable currency; // Currency used for all prediction markets.
-    OptimisticOracleV3Interface public immutable oo;
     uint64 public constant assertionLiveness = 7200; // 2 hours.
     bytes32 public immutable defaultIdentifier; // Identifier used for all prediction markets.
     bytes public constant unresolvable = "Unresolvable"; // Name of the unresolvable outcome where payouts are split.
@@ -52,9 +42,7 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
         string outcome2,
         string description,
         address outcome1Token,
-        address outcome2Token,
-        uint256 reward,
-        uint256 requiredBond
+        address outcome2Token
     );
     event MarketAsserted(bytes32 indexed marketId, string assertedOutcome, bytes32 indexed assertionId);
     event MarketResolved(bytes32 indexed marketId);
@@ -69,15 +57,9 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
     );
 
     constructor(
-        address _finder,
-        address _currency,
-        address _optimisticOracleV3
+        address _currency
     ) {
-        finder = FinderInterface(_finder);
-        require(_getCollateralWhitelist().isOnWhitelist(_currency), "Unsupported currency");
         currency = IERC20(_currency);
-        oo = OptimisticOracleV3Interface(_optimisticOracleV3);
-        defaultIdentifier = oo.defaultIdentifier();
     }
 
     function getMarket(bytes32 marketId) public view returns (Market memory) {
@@ -87,9 +69,7 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
     function initializeMarket(
         string memory outcome1, // Short name of the first outcome.
         string memory outcome2, // Short name of the second outcome.
-        string memory description, // Description of the market.
-        uint256 reward, // Reward available for asserting true market outcome.
-        uint256 requiredBond // Expected bond to assert market outcome (OOv3 can require higher bond).
+        string memory description // Description of the market.
     ) public returns (bytes32 marketId) {
         require(bytes(outcome1).length > 0, "Empty first outcome");
         require(bytes(outcome2).length > 0, "Empty second outcome");
@@ -111,13 +91,10 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
             assertedOutcomeId: bytes32(0),
             outcome1Token: outcome1Token,
             outcome2Token: outcome2Token,
-            reward: reward,
-            requiredBond: requiredBond,
             outcome1: bytes(outcome1),
             outcome2: bytes(outcome2),
             description: bytes(description)
         });
-        if (reward > 0) currency.safeTransferFrom(msg.sender, address(this), reward); // Pull reward.
 
         emit MarketInitialized(
             marketId,
@@ -125,9 +102,7 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
             outcome2,
             description,
             address(outcome1Token),
-            address(outcome2Token),
-            reward,
-            requiredBond
+            address(outcome2Token)
         );
     }
 
@@ -146,31 +121,21 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
         );
 
         market.assertedOutcomeId = assertedOutcomeId;
-        uint256 minimumBond = oo.getMinimumBond(address(currency)); // OOv3 might require higher bond.
-        uint256 bond = market.requiredBond > minimumBond ? market.requiredBond : minimumBond;
-        bytes memory claim = _composeClaim(assertedOutcome, market.description);
-
-        // Pull bond and make the assertion.
-        currency.safeTransferFrom(msg.sender, address(this), bond);
-        currency.approve(address(oo), bond);
-        assertionId = _assertTruthWithDefaults(claim, bond);
-
+        assertionId = assertedOutcomeId;
         // Store the asserter and marketId for the assertionResolvedCallback.
-        assertedMarkets[assertionId] = AssertedMarket({ asserter: msg.sender, marketId: marketId });
+        assertedMarkets[assertedOutcomeId] = AssertedMarket({ asserter: msg.sender, marketId: marketId });
 
-        emit MarketAsserted(marketId, assertedOutcome, assertionId);
+        emit MarketAsserted(marketId, assertedOutcome, assertedOutcomeId);
     }
 
     // Callback from settled assertion.
-    // If the assertion was resolved true, then the asserter gets the reward and the market is marked as resolved.
+    // If the assertion was resolved true, the market is marked as resolved.
     // Otherwise, assertedOutcomeId is reset and the market can be asserted again.
     function assertionResolvedCallback(bytes32 assertionId, bool assertedTruthfully) public {
-        // require(msg.sender == address(oo), "Not authorized");
         Market storage market = markets[assertedMarkets[assertionId].marketId];
 
         if (assertedTruthfully) {
             market.resolved = true;
-            if (market.reward > 0) currency.safeTransfer(assertedMarkets[assertionId].asserter, market.reward);
             emit MarketResolved(assertedMarkets[assertionId].marketId);
         } else market.assertedOutcomeId = bytes32(0);
         delete assertedMarkets[assertionId];
@@ -197,10 +162,8 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
         string memory outcome1, // Short name of the first outcome.
         string memory outcome2, // Short name of the second outcome.
         string memory description, // Description of the market.
-        uint256 reward, // Reward available for asserting true market outcome.
-        uint256 requiredBond, // Expected bond to assert market outcome (OOv3 can require higher bond).
         uint256 tokensToCreate) public returns (bytes32 marketId) {
-        marketId = this.initializeMarket(outcome1, outcome2, description, reward, requiredBond);
+        marketId = this.initializeMarket(outcome1, outcome2, description);
         this.createOutcomeTokens(marketId, tokensToCreate);
     }
 
@@ -270,35 +233,5 @@ contract PredictX is OptimisticOracleV3CallbackRecipientInterface {
         sellingToken.burnFrom(address(this), currencyAmount); // 20-10 = 10
         require(currency.transfer(msg.sender, currencyAmount), "currency transfer failed");
         require(invariant == market.outcome1Token.balanceOf(address(this)) * market.outcome2Token.balanceOf(address(this)), "invariant violated");
-    }
-
-    function _getCollateralWhitelist() internal view returns (AddressWhitelistInterface) {
-        return AddressWhitelistInterface(finder.getImplementationAddress(OracleInterfaces.CollateralWhitelist));
-    }
-
-    function _composeClaim(string memory outcome, bytes memory description) internal view returns (bytes memory) {
-        return
-            abi.encodePacked(
-                "As of assertion timestamp ",
-                ClaimData.toUtf8BytesUint(block.timestamp),
-                ", the described prediction market outcome is: ",
-                outcome,
-                ". The market description is: ",
-                description
-            );
-    }
-
-    function _assertTruthWithDefaults(bytes memory claim, uint256 bond) internal returns (bytes32 assertionId) {
-        assertionId = oo.assertTruth(
-            claim,
-            msg.sender, // Asserter
-            address(this), // Receive callback in this contract.
-            address(0), // No sovereign security.
-            assertionLiveness,
-            currency,
-            bond,
-            defaultIdentifier,
-            bytes32(0) // No domain.
-        );
     }
 }
