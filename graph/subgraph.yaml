@@ -8,7 +8,7 @@ dataSources:
     name: PredictXOwner
     network: sepolia
     source:
-      address: "0xA0A8b91e986E0061bb10a380e626245bced6E78c"
+      address: "0x21fe19258b696bf35d1486DAF5244049c8fd37C6"
       abi: PredictXOwner
       startBlock: 7088086
     mapping:
