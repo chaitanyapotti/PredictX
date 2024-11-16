@@ -1,25 +1,15 @@
-import { useEffect, useState } from 'react';
-import { createPublicClient, createWalletClient, custom, http, toHex } from 'viem';
+import { useEffect, useMemo } from 'react';
+import { createPublicClient, type Hex, http, toHex } from 'viem';
 import { useSession } from './contexts/SessionContext';
 
 import Login from './LoginScreen';
 import Popup from './Popup';
-import { PredictX_ABI, PredictX_CONTRACT_ADDRESS, USDC_ABI, USDC_CONTRACT_ADDRESS } from './config';
-import { baseSepolia } from 'viem/chains';
-
-const DECIMAL = 1e18;
+import { PredictX_ABI, getContractAddress } from './config';
+import { CHAIN_NAME } from './constants';
+import { getChainConfig } from './utils';
 
 type MessageRequest = {
   type: string;
-};
-
-type CreateMarketRequest = {
-  type: 'create-market';
-  data: {
-    marketId: string;
-    question: string;
-    tokenAmount: number;
-  };
 };
 
 type GetMarketRequest = {
@@ -29,19 +19,13 @@ type GetMarketRequest = {
   };
 };
 
-type VoteRequest = {
-  type: 'vote';
-  data: {
-    marketId: string;
-    voteTokenAddress: string;
-    amount: number;
-  };
-};
+const chainName = CHAIN_NAME.BASE_SEPOLIA;
 
 const App = () => {
   const { loginType } = useSession();
-  const [continueRequest, setContinueRequest] = useState(false);
-  const [showLogin, setShowLogin] = useState(!loginType);
+  const chainConfig = useMemo(() => {
+    return getChainConfig(chainName);
+  }, []);
 
   useEffect(() => {
     const listener = (
@@ -50,17 +34,17 @@ const App = () => {
       sendResponse: (response: unknown) => void,
     ) => {
       setTimeout(async () => {
-        console.log('>>>> pop urpequrest', request);
+        console.log('>>>> popup request', request);
         try {
           if (request.type === 'get-market') {
             const getMarketRequest = request as GetMarketRequest;
             const marketId = getMarketRequest.data.marketId;
             const publicClient = createPublicClient({
-              chain: baseSepolia,
+              chain: chainConfig,
               transport: http(),
             });
             const res = await publicClient.readContract({
-              address: PredictX_CONTRACT_ADDRESS as Hex,
+              address: getContractAddress(chainName) as Hex,
               abi: PredictX_ABI,
               functionName: 'getMarket',
               args: [toHex(marketId, { size: 32 })],
@@ -94,17 +78,11 @@ const App = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (loginType) {
-      setContinueRequest(true);
-    }
-  }, [loginType]);
-
   return (
     <div>
       <div className="min-h-screen w-full bg-gray-900 text-white">
-        <Login show={showLogin} />
-        {loginType && <Popup continueRequest={continueRequest} setShowLogin={setShowLogin} />}
+        <Login />
+        {loginType && <Popup chainName={chainName} chainConfig={chainConfig} />}
       </div>
     </div>
   );

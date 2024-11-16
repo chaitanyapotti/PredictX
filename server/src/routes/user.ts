@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
     }
 
     let { data: newUser } = await supabaseDBClient
-      .from('todos')
+      .from('user')
       .select('*')
       .eq('public_address', public_address)
       .single();
