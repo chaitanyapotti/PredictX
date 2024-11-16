@@ -3,14 +3,6 @@ import '@src/index.css';
 import { createRoot } from 'react-dom/client';
 import Popup from '@src/Popup';
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log('>>> request', request);
-  if (request.type === 'create-market') {
-    console.log('>>> create market');
-    sendResponse({ success: true });
-  }
-});
-
 function init() {
   const appContainer = document.querySelector('#app-container');
   if (!appContainer) {
