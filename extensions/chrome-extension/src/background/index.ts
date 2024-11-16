@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       } catch (error) {
         sendResponse({ error: (error as Error).message });
       }
-    }, 300); // magic number to wait for popup to load and handle receiving message
+    }, 500); // magic number to wait for popup to load and handle receiving message
   })();
   return true; // Keep the message channel open for sendResponse
 });
