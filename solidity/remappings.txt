@@ -2,3 +2,5 @@
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
 @uma/=lib/protocol/packages/
+v4-core/=lib/v4-core/
+v4-periphery/=lib/v4-periphery/
