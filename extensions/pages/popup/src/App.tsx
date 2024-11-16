@@ -19,7 +19,7 @@ const App = () => {
     <div>
       <div className="min-h-screen w-full bg-gray-900 text-white">
         <Login show={showLogin} />
-        { !showLogin && <Popup continueRequest={continueRequest} setShowLogin={setShowLogin} /> }
+        { loginType && <Popup continueRequest={continueRequest} setShowLogin={setShowLogin} /> }
       </div>
     </div>
   )
