@@ -1,6 +1,6 @@
 import '@src/Popup.css';
 import { withErrorBoundary, withSuspense } from '@extension/shared';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import createMetaMaskProvider from 'metamask-extension-provider';
 import { decodeToken } from '@web3auth/single-factor-auth';
 
@@ -11,18 +11,17 @@ import { generateJWTToken } from './utils';
 const Popup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loginType, setLoginType] = useState<'google' | 'metamask' | null>(null);
-  const [loginEmail, setLoginEmail] = useState<string | null>(null);
-  const [publicAddress, setPublicAddress] = useState<string | null>(null);
-
   const metamaskProvider = useMemo(() => createMetaMaskProvider(), []);
   const web3authSFAuth = useMemo(() => initWeb3Auth(), []);
 
-  const getAndSetPublicAddress = useCallback(async () => {
-    if (web3authSFAuth && web3authSFAuth.status === "connected") {
-      const payload = await web3authSFAuth.provider?.request<never, string[]>({ method: 'eth_accounts' });
-      if (payload && payload.length > 0) setPublicAddress(payload[0] as string);
+  const provider = useMemo(() => {
+    if (loginType === 'google') {
+      return web3authSFAuth?.provider;
+    } else if (loginType === 'metamask') {
+      return metamaskProvider;
     }
-  }, [web3authSFAuth]);
+    return null;
+  }, [loginType, web3authSFAuth, metamaskProvider]);
 
   const onLogin = async (idToken: string) => {
     try {
@@ -44,9 +43,10 @@ const Popup = () => {
       });
       setLoginType('google');
       setIsLoading(false);
-      setLoginEmail(payload.email);
-      getAndSetPublicAddress();
-      getJwtToken();
+      const accounts = await web3authSFAuth.provider?.request<never, string[]>({ method: 'eth_accounts' });
+      if (accounts && accounts.length > 0) {
+        getJwtToken({ loginType: 'google', loginEmail: payload.email, publicAddress: (accounts[0] as string) });
+      }
     } catch (err) {
       // Single Factor Auth SDK throws an error if the user has already enabled MFA
       // One can use the Web3AuthNoModal SDK to handle this case
@@ -104,23 +104,24 @@ const Popup = () => {
     console.log('accounts:', accounts);
     if (accounts && accounts.length > 0) {
       setLoginType('metamask');
-      setPublicAddress(accounts[0] as string);
-      getJwtToken();
+      getJwtToken({ loginType: 'metamask', loginEmail: '', publicAddress: accounts[0] as string });
     }
   }
 
-  const getJwtToken = useCallback(async () => {
-    const data = await generateJWTToken({
-      login_type: loginType as string,
+  const getJwtToken = async ({ loginType, loginEmail, publicAddress }: { loginType: string, loginEmail: string, publicAddress: string }) => {
+    if (loginType && (loginEmail || publicAddress)) {
+      const data = await generateJWTToken({
+        login_type: loginType as string,
         login_email: loginEmail as string,
-      public_address: publicAddress as string,
+        public_address: publicAddress as string,
       });
-    console.log('data:', data);
-    if (data.token) {
-      // TODO: save token to chrome storage
-      chrome.storage.local.set({ token: data.token, login_type: loginType as string });
+      console.log('data:', data);
+      if (data.token) {
+        // TODO: save token to chrome storage
+        chrome.storage.local.set({ token: data.token, login_type: loginType as string });
+      }
     }
-  }, [loginType, loginEmail, publicAddress]);
+  };
 
   useEffect(() => {
     const checkIfLoggedIn = async () => {
@@ -131,20 +132,18 @@ const Popup = () => {
         if (data.login_type === 'google') {
           await web3authSFAuth?.init();
           if (web3authSFAuth.status === "connected") {
-            const payload = await web3authSFAuth.getUserInfo();
-            setLoginEmail(payload.email as string);
-            getAndSetPublicAddress();
+            setLoginType('google');
           }
         } else if (data.login_type === 'metamask') {
           const accounts = await metamaskProvider.request<string[]>({ method: 'eth_accounts' });
           if (accounts && accounts.length > 0) {
-            setPublicAddress(accounts[0] as string);
+            setLoginType('metamask');
           }
         }
       }
     }
     checkIfLoggedIn();
-  }, [web3authSFAuth, getAndSetPublicAddress, metamaskProvider]);
+  }, [web3authSFAuth, metamaskProvider]);
 
   const loggedInView = () => {
     return (

@@ -1,6 +1,7 @@
 export const generateJWTToken = async ({ login_type, login_email, public_address }: { login_type: string, login_email: string, public_address: string }) => {
   try {
-    const response = await fetch('/api/user', {
+    console.log('generating JWT token', { login_type, login_email, public_address });
+    const response = await fetch('http://localhost:3000/api/user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
