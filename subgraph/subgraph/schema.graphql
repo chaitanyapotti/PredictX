@@ -1,0 +1,62 @@
+type MarketAsserted @entity(immutable: true) {
+  id: Bytes!
+  marketId: Bytes! # bytes32
+  assertedOutcome: String! # string
+  assertionId: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MarketInitialized @entity(immutable: true) {
+  id: Bytes!
+  marketId: Bytes! # bytes32
+  outcome1: String! # string
+  outcome2: String! # string
+  description: String! # string
+  outcome1Token: Bytes! # address
+  outcome2Token: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MarketResolved @entity(immutable: true) {
+  id: Bytes!
+  marketId: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokensCreated @entity(immutable: true) {
+  id: Bytes!
+  marketId: Bytes! # bytes32
+  account: Bytes! # address
+  tokensCreated: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokensRedeemed @entity(immutable: true) {
+  id: Bytes!
+  marketId: Bytes! # bytes32
+  account: Bytes! # address
+  tokensRedeemed: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokensSettled @entity(immutable: true) {
+  id: Bytes!
+  marketId: Bytes! # bytes32
+  account: Bytes! # address
+  payout: BigInt! # uint256
+  outcome1Tokens: BigInt! # uint256
+  outcome2Tokens: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
