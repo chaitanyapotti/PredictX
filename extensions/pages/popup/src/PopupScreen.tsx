@@ -5,7 +5,7 @@ const PopupScreen = ({ marketData }: { marketData: any[] }) => {
       const { token1Balance, token2Balance } = item;
       const total = token1Balance + token2Balance;
       return (
-        <div key={index} className="rounded-lg border-4 border-gray-600 bg-gray-700 p-6">
+        <div key={index} className="rounded-lg border-4 border-gray-600 bg-gray-700 p-4">
           <p className="mb-4">{item.description}</p>
           <div className="mx-auto mb-4 flex w-4/5 justify-center space-x-4">
             <button className="w-1/2 rounded-full bg-green-500 px-4 py-2 text-white hover:bg-green-600">Vote Yes</button>

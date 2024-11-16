@@ -97,8 +97,14 @@ const Login = () => {
 
   const loggedInView = () => {
     return (
-      <div className="flex justify-end mr-4">
-        <button className="text-sm text-gray-400 underline underline-offset-2 transition-colors duration-200 hover:text-white" onClick={logout}>Logout</button>
+      <div className='flex justify-between items-center pt-4'>
+        <div className="flex items-center gap-2 ml-4">
+          <img src={Logo} alt="logo" className="size-8 rounded-full"></img>
+          <span className='text-lg font-semibold text-white'>PredictX</span>
+        </div>
+        <div className="mr-4">
+          <button className="text-sm text-gray-400 underline underline-offset-2 transition-colors duration-200 hover:text-white" onClick={logout}>Logout</button>
+        </div>
       </div>
     );
   };
