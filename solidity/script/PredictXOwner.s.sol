@@ -33,14 +33,19 @@ contract PredictXOwnerScript is Script {
         PredictXOwner predict = new PredictXOwner(defaultCurrency);
         address[] memory addresses = vm.getWallets();
         console.log("Addresses: %s", addresses[0]);
-        console.log("Deployed Prediction Market at %s", address(predict), msg.sender, addresses[0]);
+        console.log("Deployed Prediction Market at %s, %s, %s", address(predict), msg.sender, addresses[0]);
         defaultCurrencyContract.addMinter(msg.sender);
         defaultCurrencyContract.mint(msg.sender, 1e28);
+        console.log("hello %s", "1");
+        bytes32 marketId = keccak256(abi.encode(block.number, "will trump win us election?"));
         // require(defaultCurrencyContract.approve(msg.sender, 1e28), "no revert");
         require(defaultCurrencyContract.approve(address(predict), 1e28), "no revert");
-        bytes32 marketId = predict.initializeMarket("yes", "no", "will trump win us election?");
-        predict.createOutcomeTokens(marketId, 1e18);
-        console.log("Initialized Prediction Market %s", address(predict));
+        // bytes32 marketId = predict.initializeMarket("yes", "no", "will trump win us election?", marketId);
+        // predict.initializeMarketAndCreateOutcomeTokens("yes", "no", "will trump win us election?", marketId, 1e28);
+        
+        // console.log("Initialized Prediction Market %s, %s", address(predict), marketId);
+        // predict.createOutcomeTokens(marketId, 1e18);
+        // console.log("Initialized Prediction Market %s, %s", address(predict), marketId);
         vm.stopBroadcast();
     }
 }
