@@ -4,14 +4,14 @@ pragma solidity ^0.8.20;
 import "forge-std/console2.sol";
 import "forge-std/Script.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@uma/core/contracts/common/implementation/AddressWhitelist.sol";
+import "../src/AddressWhitelist.sol";
 import "@uma/core/contracts/common/implementation/TestnetERC20.sol";
-import "@uma/core/contracts/data-verification-mechanism/implementation/Constants.sol";
+import "../src/interfaces/Constants.sol";
 import "@uma/core/contracts/data-verification-mechanism/implementation/Finder.sol";
 import "@uma/core/contracts/data-verification-mechanism/implementation/IdentifierWhitelist.sol";
 import "@uma/core/contracts/data-verification-mechanism/implementation/Store.sol";
 import "@uma/core/contracts/data-verification-mechanism/test/MockOracleAncillary.sol";
-import "@uma/core/contracts/optimistic-oracle-v3/implementation/OptimisticOracleV3.sol";
+import "../src/PredictX.sol";
 
 contract OracleSandboxScript is Script {
     // Deployment parameters are set as state variables to avoid stack too deep errors.
@@ -63,9 +63,9 @@ contract OracleSandboxScript is Script {
         store.setFinalFee(defaultCurrency, FixedPoint.Unsigned(minimumBond / 2));
 
         // Deploy Optimistic Oracle V3 and register it in the Finder.
-        OptimisticOracleV3 oo = new OptimisticOracleV3(finder, IERC20(defaultCurrency), defaultLiveness);
+        PredictX oo = new PredictX(finder, IERC20(defaultCurrency), defaultLiveness);
         console.log("Deployed Optimistic Oracle V3 at %s", address(oo));
-        finder.changeImplementationAddress(OracleInterfaces.OptimisticOracleV3, address(oo));
+        finder.changeImplementationAddress(OracleInterfaces.PredictX, address(oo));
 
         vm.stopBroadcast();
     }
