@@ -27,8 +27,8 @@
     "@extension/storage": "workspace:*",
     "@extension/ui": "workspace:*",
     "@tanstack/react-query": "^5.60.4",
-    "viem": "^2.21.45",
-    "wagmi": "^2.12.32"
+    "react-hook-form": "^7.53.2",
+    "viem": "^2.21.45"
   },
   "devDependencies": {
     "@extension/hmr": "workspace:*",

@@ -1,162 +1,179 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-// import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useConnect } from 'wagmi';
+import { useForm } from 'react-hook-form';
 import type { Hex } from 'viem';
-// import { parseEther, toHex } from 'viem';
-// import { PREDICTX_ADDRESS, PREDICTX_ABI } from '../constants';
+import { hexToString } from 'viem';
 
 enum MessageType {
   OPEN_POPUP = 'open-popup',
   CREATE_MARKET = 'create-market',
+  GET_MARKET = 'get-market',
+  VOTE = 'vote',
 }
 
-interface Market {
-  resolved: boolean;
-  assertedOutcomeId: Hex; // bytes32
-  outcome1Token: Hex; // address
-  outcome2Token: Hex; // address
-  reward: bigint;
-  requiredBond: bigint;
-  outcome1: Hex; // bytes
-  outcome2: Hex; // bytes
-  description: Hex; // bytes
+interface MessageResponse<T> {
+  success: boolean;
+  data: T;
+  error?: string;
+}
+
+// Remove unused Market interface
+interface CreateMarketFormData {
+  question: string;
+  tokenAmount: string;
 }
 
 interface TooltipProps {
-  isOpen: boolean;
-  tweetContent: string;
   tweetId: string;
+  tweetContent: string;
   onYes: () => void;
   onNo: () => void;
   onCreateMarket: () => void;
   yesOdds?: number;
   noOdds?: number;
   userVote?: 'yes' | 'no' | null;
-  marketId?: string;
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({
-  isOpen,
-  tweetContent,
-  tweetId,
-  yesOdds,
-  noOdds,
-  userVote = null,
-  marketId,
-}) => {
-  // const {
-  //   data: marketData,
-  //   isPending: isPendingMarket,
-  //   error: marketError,
-  // } = useReadContract({
-  //   address: PREDICTX_ADDRESS,
-  //   abi: PREDICTX_ABI,
-  //   functionName: 'getMarket',
-  //   args: [toHex(tweetId, { size: 32 })],
-  //   query: {
-  //     enabled: !!tweetId,
-  //   },
-  // });
-  // console.log('>>> market data', { marketData, isPendingMarket, marketError });
+interface VoteFormData {
+  amount: string;
+}
 
-  // const { data: createMarketHash, writeContract: writeCreateMarket, error: createMarketError } = useWriteContract();
-  // const { data: createTokensHash, writeContract: writeCreateTokens, error: createTokensError } = useWriteContract();
-  // const { address, isConnected } = useAccount();
-  // const { connectors, connect } = useConnect();
-  // console.log('>>>> create makret', { createMarketError, createMarketHash });
-  // console.log('>>>> create tokens', { createTokensError, createTokensHash });
-  // // Wait for transactions
-  // const { isLoading: isCreatingMarket, isSuccess: isMarketCreatedSuccess } = useWaitForTransactionReceipt({
-  //   hash: createMarketHash,
-  // });
-  // const { isLoading: isCreatingTokens, isSuccess: isTokensCreatedSuccess } = useWaitForTransactionReceipt({
-  //   hash: createTokensHash,
-  // });
+interface Market {
+  resolved: boolean;
+  assertedOutcomeId: string;
+  outcome1Token: string;
+  outcome2Token: string;
+  outcome1: string;
+  outcome2: string;
+  description: string;
+}
 
-  const handleCreateMarket = async () => {
+export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, yesOdds, noOdds, userVote = null }) => {
+  const [voteType, setVoteType] = React.useState<'yes' | 'no' | null>(null);
+
+  const { register: registerVote, handleSubmit: handleVoteSubmit } = useForm<VoteFormData>({
+    defaultValues: {
+      amount: '1',
+    },
+  });
+
+  const { isPending, error, data } = useQuery<MessageResponse<Market>>({
+    queryKey: ['repoData'],
+    queryFn: () =>
+      chrome.runtime.sendMessage({
+        type: MessageType.GET_MARKET,
+        data: {
+          marketId: tweetId,
+        },
+      }),
+  });
+
+  const { register, handleSubmit } = useForm<CreateMarketFormData>({
+    defaultValues: {
+      question: tweetContent,
+      tokenAmount: '1',
+    },
+  });
+
+  const handleCreateMarket = async (data: CreateMarketFormData) => {
     try {
-      // await chrome.runtime.sendMessage({ type: MessageType.OPEN_POPUP });
-      // chrome.runtime.connect();
-      const response = await chrome.runtime.sendMessage({ type: MessageType.CREATE_MARKET });
-      console.log('>>> response', response);
+      const response = await chrome.runtime.sendMessage({
+        type: MessageType.CREATE_MARKET,
+        data: {
+          marketId: tweetId,
+          question: data.question,
+          tokenAmount: data.tokenAmount,
+        },
+      });
+      console.log('>>> response create market', response);
     } catch (e) {
       console.error('Error creating market:', e);
     }
-    // if (!address) {
-    //   alert('Please connect your wallet first');
-    //   return;
-    // }
-    // try {
-    //   writeCreateMarket({
-    //     address: PREDICTX_ADDRESS,
-    //     abi: PREDICTX_ABI,
-    //     functionName: 'initializeMarket',
-    //     args: [
-    //       'Yes', // outcome1
-    //       'No', // outcome2
-    //       tweetContent, // description
-    //       parseEther('0.1'), // reward
-    //       parseEther('0.1'), // requiredBond
-    //     ],
-    //   });
-    // } catch (error) {
-    //   console.error('Error creating market:', error);
-    // }
   };
 
-  const handleVote = async (vote: 'yes' | 'no') => {
-    // if (!address || !marketId) {
-    //   alert('Please connect your wallet first');
-    //   return;
-    // }
-    // try {
-    //   // Create outcome tokens to place vote
-    //   await writeCreateTokens({
-    //     address: PREDICTX_ADDRESS,
-    //     abi: PREDICTX_ABI,
-    //     functionName: 'createOutcomeTokens',
-    //     args: [
-    //       marketId as Hex,
-    //       parseEther('0.1'), // Amount of tokens to create
-    //     ],
-    //   });
-    // } catch (error) {
-    //   console.error('Error voting:', error);
-    // }
+  const handleVote = async (data: VoteFormData) => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: MessageType.VOTE,
+        data: {
+          marketId: tweetId,
+          vote: voteType,
+          amount: data.amount,
+        },
+      });
+      console.log('>>> vote response', response);
+      setVoteType(null); // Reset vote type after submission
+    } catch (e) {
+      console.error('Error voting:', e);
+    }
   };
-
-  if (!isOpen) return null;
 
   const handleTooltipClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
 
-  const doesMarketExist = false;
+  const doesMarketExist = data?.success;
+
+  console.log('>>> data', data);
 
   return (
     <div
       className="absolute bottom-full right-0 mb-2 w-[520px] rounded-lg bg-white p-4 shadow-lg"
       onClick={handleTooltipClick}>
-      <p className="mb-4 max-w-[520px] text-sm text-gray-700">{tweetContent}</p>
-
-      {doesMarketExist ? (
+      {error && 'An error has occurred: ' + error.message}
+      {isPending && 'Loading...'}
+      {!isPending && doesMarketExist ? (
         <div className="flex flex-col space-y-2">
+          <p className="mb-4 max-w-[520px] text-sm text-gray-700">{hexToString(data.data.description as Hex)}</p>
           {!userVote ? (
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={() => handleVote('yes')}
-                // disabled={!address || isCreatingTokens || isTokensCreatedSuccess}
-                className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600 disabled:opacity-50">
-                Yes {yesOdds && `(${yesOdds}x)`}
-              </button>
-              <button
-                onClick={() => handleVote('no')}
-                // disabled={!address || isCreatingTokens || isTokensCreatedSuccess}
-                className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 disabled:opacity-50">
-                No {noOdds && `(${noOdds}x)`}
-              </button>
-            </div>
+            <>
+              {!voteType ? (
+                <div className="flex justify-center space-x-4">
+                  <button
+                    onClick={() => setVoteType('yes')}
+                    className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600 disabled:opacity-50">
+                    Yes {yesOdds && `(${yesOdds}x)`}
+                  </button>
+                  <button
+                    onClick={() => setVoteType('no')}
+                    className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 disabled:opacity-50">
+                    No {noOdds && `(${noOdds}x)`}
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleVoteSubmit(handleVote)} className="flex flex-col space-y-4">
+                  <div>
+                    <label htmlFor="voteAmount" className="block text-sm font-medium text-gray-700">
+                      Amount to Vote ({voteType.toUpperCase()})
+                    </label>
+                    <div className="mt-1 flex items-center space-x-2">
+                      <input
+                        id="voteAmount"
+                        type="number"
+                        step="0.1"
+                        {...registerVote('amount')}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setVoteType(null)}
+                        className="rounded bg-gray-500 px-3 py-2 text-white hover:bg-gray-600">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    className={`rounded px-4 py-2 text-white ${
+                      voteType === 'yes' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+                    }`}>
+                    Confirm {voteType.toUpperCase()}
+                  </button>
+                </form>
+              )}
+            </>
           ) : (
             <div className="text-center text-sm font-medium text-gray-700">You voted: {userVote.toUpperCase()}</div>
           )}
@@ -167,26 +184,35 @@ export const Tooltip: React.FC<TooltipProps> = ({
           )}
         </div>
       ) : (
-        <div className="flex justify-center">
+        <form onSubmit={handleSubmit(handleCreateMarket)} className="flex flex-col space-y-4">
+          <div>
+            <label htmlFor="question" className="block text-sm font-medium text-gray-700">
+              Question
+            </label>
+            <textarea
+              id="question"
+              {...register('question')}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              rows={3}
+            />
+          </div>
+          <div>
+            <label htmlFor="tokenAmount" className="block text-sm font-medium text-gray-700">
+              Token Amount
+            </label>
+            <input
+              type="number"
+              {...register('tokenAmount')}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
           <button
-            onClick={handleCreateMarket}
-            // disabled={!address || isCreatingMarket}
+            type="submit"
             className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50">
-            {/* {isCreatingMarket ? 'Creating...' : 'Create Market'} */}
             Create Market
           </button>
-        </div>
+        </form>
       )}
-
-      {/* {!isConnected && (
-        <div className="mt-4 flex flex-row space-x-2">
-          {connectors.map(connector => (
-            <button className="text-black" key={connector.uid} onClick={() => connect({ connector })}>
-              {connector.name}
-            </button>
-          ))}
-        </div>
-      )} */}
     </div>
   );
 };

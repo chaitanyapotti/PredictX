@@ -58,17 +58,18 @@ export const TweetButton: React.FC<TweetButtonProps> = ({
 
   return (
     <div className="relative" ref={buttonRef}>
-      <Tooltip
-        isOpen={isTooltipOpen}
-        tweetContent={tweetContent}
-        tweetId={tweetId}
-        onYes={handleYes}
-        onNo={handleNo}
-        onCreateMarket={handleCreateMarket}
-        yesOdds={yesOdds}
-        noOdds={noOdds}
-        userVote={userVote}
-      />
+      {isTooltipOpen && (
+        <Tooltip
+          tweetContent={tweetContent}
+          tweetId={tweetId}
+          onYes={handleYes}
+          onNo={handleNo}
+          onCreateMarket={handleCreateMarket}
+          yesOdds={yesOdds}
+          noOdds={noOdds}
+          userVote={userVote}
+        />
+      )}
       <button
         className="ml-2.5 cursor-pointer rounded-full border-none bg-[#1da1f2] px-2.5 py-1.5 text-white transition-colors hover:bg-[#1a91da]"
         onClick={handleClick}>
