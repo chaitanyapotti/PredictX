@@ -18,6 +18,7 @@ import {
   lineaSepolia,
   scrollSepolia,
   morphHolesky,
+  unichainSepolia,
 } from 'viem/chains';
 import { PredictX_ABI, PredictX_CONTRACT_ADDRESS, USDC_ABI, USDC_CONTRACT_ADDRESS } from './config';
 
@@ -54,6 +55,7 @@ type VoteRequest = {
 
 // const chain = sepolia;
 const chain = baseSepolia;
+// const chain = unichainSepolia;
 // const chain = polygonAmoy;
 // const chain = bitkubTestnet;
 // const chain = mantleSepoliaTestnet;
