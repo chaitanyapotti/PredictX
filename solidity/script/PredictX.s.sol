@@ -5,7 +5,7 @@ import "forge-std/console2.sol";
 import "forge-std/Script.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../src/AddressWhitelist.sol";
-import "@uma/core/contracts/common/implementation/TestnetERC20.sol";
+import "../src/token/ExpandedERC20.sol";
 import "../src/interfaces/Constants.sol";
 import "@uma/core/contracts/data-verification-mechanism/implementation/Finder.sol";
 import "@uma/core/contracts/data-verification-mechanism/implementation/IdentifierWhitelist.sol";
