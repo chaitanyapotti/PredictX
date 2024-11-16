@@ -4,9 +4,11 @@ import {
   MarketAsserted,
   MarketInitialized,
   MarketResolved,
+  TokensBought,
   TokensCreated,
   TokensRedeemed,
-  TokensSettled
+  TokensSettled,
+  TokensSold
 } from "../generated/PredictXOwner/PredictXOwner"
 
 export function createMarketAssertedEvent(
@@ -90,6 +92,38 @@ export function createMarketResolvedEvent(marketId: Bytes): MarketResolved {
   )
 
   return marketResolvedEvent
+}
+
+export function createTokensBoughtEvent(
+  marketId: Bytes,
+  account: Address,
+  currencyAmount: BigInt,
+  outcomeTokensBought: BigInt
+): TokensBought {
+  let tokensBoughtEvent = changetype<TokensBought>(newMockEvent())
+
+  tokensBoughtEvent.parameters = new Array()
+
+  tokensBoughtEvent.parameters.push(
+    new ethereum.EventParam("marketId", ethereum.Value.fromFixedBytes(marketId))
+  )
+  tokensBoughtEvent.parameters.push(
+    new ethereum.EventParam("account", ethereum.Value.fromAddress(account))
+  )
+  tokensBoughtEvent.parameters.push(
+    new ethereum.EventParam(
+      "currencyAmount",
+      ethereum.Value.fromUnsignedBigInt(currencyAmount)
+    )
+  )
+  tokensBoughtEvent.parameters.push(
+    new ethereum.EventParam(
+      "outcomeTokensBought",
+      ethereum.Value.fromUnsignedBigInt(outcomeTokensBought)
+    )
+  )
+
+  return tokensBoughtEvent
 }
 
 export function createTokensCreatedEvent(
@@ -176,4 +210,36 @@ export function createTokensSettledEvent(
   )
 
   return tokensSettledEvent
+}
+
+export function createTokensSoldEvent(
+  marketId: Bytes,
+  account: Address,
+  currencyAmount: BigInt,
+  outcomeTokensSold: BigInt
+): TokensSold {
+  let tokensSoldEvent = changetype<TokensSold>(newMockEvent())
+
+  tokensSoldEvent.parameters = new Array()
+
+  tokensSoldEvent.parameters.push(
+    new ethereum.EventParam("marketId", ethereum.Value.fromFixedBytes(marketId))
+  )
+  tokensSoldEvent.parameters.push(
+    new ethereum.EventParam("account", ethereum.Value.fromAddress(account))
+  )
+  tokensSoldEvent.parameters.push(
+    new ethereum.EventParam(
+      "currencyAmount",
+      ethereum.Value.fromUnsignedBigInt(currencyAmount)
+    )
+  )
+  tokensSoldEvent.parameters.push(
+    new ethereum.EventParam(
+      "outcomeTokensSold",
+      ethereum.Value.fromUnsignedBigInt(outcomeTokensSold)
+    )
+  )
+
+  return tokensSoldEvent
 }

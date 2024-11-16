@@ -29,6 +29,17 @@ type MarketResolved @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
+type TokensBought @entity(immutable: true) {
+  id: Bytes!
+  marketId: Bytes! # bytes32
+  account: Bytes! # address
+  currencyAmount: BigInt! # uint256
+  outcomeTokensBought: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type TokensCreated @entity(immutable: true) {
   id: Bytes!
   marketId: Bytes! # bytes32
@@ -56,6 +67,17 @@ type TokensSettled @entity(immutable: true) {
   payout: BigInt! # uint256
   outcome1Tokens: BigInt! # uint256
   outcome2Tokens: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokensSold @entity(immutable: true) {
+  id: Bytes!
+  marketId: Bytes! # bytes32
+  account: Bytes! # address
+  currencyAmount: BigInt! # uint256
+  outcomeTokensSold: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

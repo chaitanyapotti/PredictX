@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "PredictXOwner": {
+      "address": "0x9103b7E0BE0cFd703F08CCcC94E6a52E58B1935E",
+      "startBlock": 7088086
+    }
+  }
+}

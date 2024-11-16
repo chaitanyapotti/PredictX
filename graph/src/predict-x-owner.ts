@@ -2,17 +2,21 @@ import {
   MarketAsserted as MarketAssertedEvent,
   MarketInitialized as MarketInitializedEvent,
   MarketResolved as MarketResolvedEvent,
+  TokensBought as TokensBoughtEvent,
   TokensCreated as TokensCreatedEvent,
   TokensRedeemed as TokensRedeemedEvent,
-  TokensSettled as TokensSettledEvent
+  TokensSettled as TokensSettledEvent,
+  TokensSold as TokensSoldEvent
 } from "../generated/PredictXOwner/PredictXOwner"
 import {
   MarketAsserted,
   MarketInitialized,
   MarketResolved,
+  TokensBought,
   TokensCreated,
   TokensRedeemed,
-  TokensSettled
+  TokensSettled,
+  TokensSold
 } from "../generated/schema"
 
 export function handleMarketAsserted(event: MarketAssertedEvent): void {
@@ -61,6 +65,22 @@ export function handleMarketResolved(event: MarketResolvedEvent): void {
   entity.save()
 }
 
+export function handleTokensBought(event: TokensBoughtEvent): void {
+  let entity = new TokensBought(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  )
+  entity.marketId = event.params.marketId
+  entity.account = event.params.account
+  entity.currencyAmount = event.params.currencyAmount
+  entity.outcomeTokensBought = event.params.outcomeTokensBought
+
+  entity.blockNumber = event.block.number
+  entity.blockTimestamp = event.block.timestamp
+  entity.transactionHash = event.transaction.hash
+
+  entity.save()
+}
+
 export function handleTokensCreated(event: TokensCreatedEvent): void {
   let entity = new TokensCreated(
     event.transaction.hash.concatI32(event.logIndex.toI32())
@@ -100,6 +120,22 @@ export function handleTokensSettled(event: TokensSettledEvent): void {
   entity.payout = event.params.payout
   entity.outcome1Tokens = event.params.outcome1Tokens
   entity.outcome2Tokens = event.params.outcome2Tokens
+
+  entity.blockNumber = event.block.number
+  entity.blockTimestamp = event.block.timestamp
+  entity.transactionHash = event.transaction.hash
+
+  entity.save()
+}
+
+export function handleTokensSold(event: TokensSoldEvent): void {
+  let entity = new TokensSold(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  )
+  entity.marketId = event.params.marketId
+  entity.account = event.params.account
+  entity.currencyAmount = event.params.currencyAmount
+  entity.outcomeTokensSold = event.params.outcomeTokensSold
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
