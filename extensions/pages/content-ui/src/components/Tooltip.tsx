@@ -142,106 +142,133 @@ export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, userVot
 
   return (
     <div
-      className="absolute bottom-full right-0 mb-2 w-[520px] rounded-lg bg-white p-4 shadow-lg"
+      className="absolute bottom-full right-0 mb-2 w-[420px] rounded-xl bg-gray-900 p-6 shadow-xl ring-1 ring-gray-200"
       onClick={handleTooltipClick}>
-      {error && 'An error has occurred: ' + error.message}
-      {isLoadingOrPending && 'Loading...'}
+      {error && (
+        <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600">An error has occurred: {error.message}</div>
+      )}
+
+      {isLoadingOrPending && (
+        <div className="flex items-center justify-center py-8">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+        </div>
+      )}
+
       {!isLoadingOrPending && !error ? (
         doesMarketExist ? (
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-4">
             {isWriting && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white/50">
+              <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gray-900 backdrop-blur-sm">
                 <div className="text-center">
-                  <div className="mb-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
-                  <p className="text-sm text-gray-600">Processing transaction...</p>
+                  <div className="mb-3 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+                  <p className="text-sm font-medium">Processing transaction...</p>
                 </div>
               </div>
             )}
-            <p className="mb-4 max-w-[520px] text-sm text-gray-700">{hexToString(market?.description as Hex)}</p>
+
+            <div className="rounded-lg p-4">
+              <p className="text-sm leading-relaxed">{hexToString(market?.description as Hex)}</p>
+            </div>
+
             {!userVote ? (
               <>
                 {!voteType ? (
-                  <div className="flex justify-center space-x-4">
-                    <button
-                      onClick={() => setVoteType('yes')}
-                      className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600 disabled:opacity-50">
-                      Yes {`(${token1Odd.toFixed(2)}%)`}
-                    </button>
-                    <button
-                      onClick={() => setVoteType('no')}
-                      className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 disabled:opacity-50">
-                      No {`(${token2Odd.toFixed(2)}%)`}
-                    </button>
+                  <div className="flex flex-col space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setVoteType('yes')}
+                        className="flex items-center justify-center space-x-2 rounded-lg bg-green-500 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-600 disabled:opacity-50">
+                        <span>Yes</span>
+                        <span className="rounded bg-green-400/30 px-2 py-0.5">{token1Odd.toFixed(1)}%</span>
+                      </button>
+                      <button
+                        onClick={() => setVoteType('no')}
+                        className="flex items-center justify-center space-x-2 rounded-lg bg-red-500 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50">
+                        <span>No</span>
+                        <span className="rounded bg-red-400/30 px-2 py-0.5">{token2Odd.toFixed(1)}%</span>
+                      </button>
+                    </div>
+                    <div className="text-center text-xs text-white">Click to place your prediction</div>
                   </div>
                 ) : (
-                  <form onSubmit={handleVoteSubmit(handleVote)} className="flex flex-col space-y-4">
-                    <div>
-                      <label htmlFor="voteAmount" className="block text-sm font-medium text-gray-700">
+                  <form onSubmit={handleVoteSubmit(handleVote)} className="space-y-4">
+                    <div className="rounded-lg p-4">
+                      <label htmlFor="voteAmount" className="block text-sm font-medium">
                         Amount to Vote ({voteType.toUpperCase()})
                       </label>
-                      <div className="mt-1 flex items-center space-x-2">
+                      <div className="mt-2 flex items-center space-x-2">
                         <input
                           id="voteAmount"
                           type="number"
                           {...registerVote('amount')}
-                          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          className="block w-full rounded-lg p-3 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         />
-                        <button
-                          type="button"
-                          onClick={() => setVoteType(null)}
-                          className="rounded bg-gray-500 px-3 py-2 text-white hover:bg-gray-600">
-                          Cancel
-                        </button>
                       </div>
                     </div>
-                    <button
-                      type="submit"
-                      className={`rounded px-4 py-2 text-white ${
-                        voteType === 'yes' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
-                      }`}>
-                      Confirm {voteType.toUpperCase()}
-                    </button>
+
+                    <div className="flex space-x-3">
+                      <button
+                        type="submit"
+                        className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
+                          voteType === 'yes' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+                        }`}>
+                        Confirm {voteType.toUpperCase()}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setVoteType(null)}
+                        className="rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-200">
+                        Cancel
+                      </button>
+                    </div>
                   </form>
                 )}
               </>
             ) : (
-              <div className="text-center text-sm font-medium text-gray-700">You voted: {userVote.toUpperCase()}</div>
+              <div className="rounded-lg bg-blue-50 p-4 text-center text-sm font-medium text-blue-700">
+                You voted: {userVote.toUpperCase()}
+              </div>
             )}
           </div>
         ) : (
-          <form onSubmit={handleSubmit(handleCreateMarket)} className="flex flex-col space-y-4">
+          <form onSubmit={handleSubmit(handleCreateMarket)} className="space-y-4">
             {isWriting && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white/50">
+              <div className="absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-sm">
                 <div className="text-center">
-                  <div className="mb-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
-                  <p className="text-sm text-gray-600">Processing transaction...</p>
+                  <div className="mb-3 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+                  <p className="text-sm font-medium text-white">Processing transaction...</p>
                 </div>
               </div>
             )}
-            <div>
-              <label htmlFor="question" className="block text-sm font-medium text-gray-700">
-                Question
-              </label>
-              <textarea
-                id="question"
-                {...register('question')}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                rows={3}
-              />
+
+            <div className="space-y-4 rounded-lg p-4">
+              <div>
+                <label htmlFor="question" className="block text-sm font-medium text-white">
+                  Question
+                </label>
+                <textarea
+                  id="question"
+                  {...register('question')}
+                  className="mt-1.5 p-3 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <label htmlFor="tokenAmount" className="block text-sm font-medium text-white">
+                  Token Amount
+                </label>
+                <input
+                  id="tokenAmount"
+                  type="number"
+                  {...register('tokenAmount')}
+                  className="mt-1.5 p-3 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="tokenAmount" className="block text-sm font-medium text-gray-700">
-                Token Amount
-              </label>
-              <input
-                type="number"
-                {...register('tokenAmount')}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
+
             <button
               type="submit"
-              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50">
+              className="w-full rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-600 disabled:opacity-50">
               Create Market
             </button>
           </form>
