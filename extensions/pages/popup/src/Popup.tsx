@@ -1,18 +1,28 @@
 import '@src/Popup.css';
 import { withErrorBoundary, withSuspense } from '@extension/shared';
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import createMetaMaskProvider from 'metamask-extension-provider';
 import { decodeToken } from '@web3auth/single-factor-auth';
 
 import { initWeb3Auth } from './login';
+import { generateJWTToken } from './utils';
 
 
 const Popup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loginType, setLoginType] = useState<'google' | 'metamask' | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [metamaskProvider, setMetamaskProvider] = useState<any>(null);
-  const web3authSFAuth = initWeb3Auth();
+  const [loginEmail, setLoginEmail] = useState<string | null>(null);
+  const [publicAddress, setPublicAddress] = useState<string | null>(null);
+
+  const metamaskProvider = useMemo(() => createMetaMaskProvider(), []);
+  const web3authSFAuth = useMemo(() => initWeb3Auth(), []);
+
+  const getAndSetPublicAddress = useCallback(async () => {
+    if (web3authSFAuth && web3authSFAuth.status === "connected") {
+      const payload = await web3authSFAuth.provider?.request<never, string[]>({ method: 'eth_accounts' });
+      if (payload && payload.length > 0) setPublicAddress(payload[0] as string);
+    }
+  }, [web3authSFAuth]);
 
   const onLogin = async (idToken: string) => {
     try {
@@ -34,6 +44,9 @@ const Popup = () => {
       });
       setLoginType('google');
       setIsLoading(false);
+      setLoginEmail(payload.email);
+      getAndSetPublicAddress();
+      getJwtToken();
     } catch (err) {
       // Single Factor Auth SDK throws an error if the user has already enabled MFA
       // One can use the Web3AuthNoModal SDK to handle this case
@@ -47,7 +60,7 @@ const Popup = () => {
       web3authSFAuth?.logout();
     } else if (loginType === 'metamask') {
       // TODO: logout from metamask
-      metamaskProvider?.disconnect();
+      // metamaskProvider.disconnect();
     }
     setLoginType(null);
   }
@@ -87,14 +100,51 @@ const Popup = () => {
   }
 
   const triggerMetamaskLogin = async () => {
-    const provider = createMetaMaskProvider();
-    const accounts = await provider.request<string[]>({ method: 'eth_requestAccounts' });
+    const accounts = await metamaskProvider.request<string[]>({ method: 'eth_requestAccounts' });
     console.log('accounts:', accounts);
     if (accounts && accounts.length > 0) {
       setLoginType('metamask');
-      setMetamaskProvider(provider);
+      setPublicAddress(accounts[0] as string);
+      getJwtToken();
     }
   }
+
+  const getJwtToken = useCallback(async () => {
+    const data = await generateJWTToken({
+      login_type: loginType as string,
+        login_email: loginEmail as string,
+      public_address: publicAddress as string,
+      });
+    console.log('data:', data);
+    if (data.token) {
+      // TODO: save token to chrome storage
+      chrome.storage.local.set({ token: data.token, login_type: loginType as string });
+    }
+  }, [loginType, loginEmail, publicAddress]);
+
+  useEffect(() => {
+    const checkIfLoggedIn = async () => {
+      const data = await chrome.storage.local.get(['token', 'login_type']);
+      console.log('data:', data);
+      if (data.login_type) {
+        setLoginType(data.login_type as 'google' | 'metamask');
+        if (data.login_type === 'google') {
+          await web3authSFAuth?.init();
+          if (web3authSFAuth.status === "connected") {
+            const payload = await web3authSFAuth.getUserInfo();
+            setLoginEmail(payload.email as string);
+            getAndSetPublicAddress();
+          }
+        } else if (data.login_type === 'metamask') {
+          const accounts = await metamaskProvider.request<string[]>({ method: 'eth_accounts' });
+          if (accounts && accounts.length > 0) {
+            setPublicAddress(accounts[0] as string);
+          }
+        }
+      }
+    }
+    checkIfLoggedIn();
+  }, [web3authSFAuth, getAndSetPublicAddress, metamaskProvider]);
 
   const loggedInView = () => {
     return (
