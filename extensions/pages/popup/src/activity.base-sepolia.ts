@@ -12,7 +12,7 @@ export const fetchActivityBaseSepolia = async () => {
     query TokenBought {
       tokensBoughts {
         currencyAmount
-      blockTimestamp
+        blockTimestamp
         blockNumber
         outcomeTokensBought
         marketId
@@ -34,6 +34,7 @@ export const fetchLatestMarketBaseSepolia = async () => {
         outcome2
         outcome1Token
         outcome2Token
+        blockTimestamp
       }
     }
   `;

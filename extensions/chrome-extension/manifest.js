@@ -32,9 +32,6 @@ const manifest = {
       default_width: 512,
       default_height: 600,
     },
-    chrome_url_overrides: {
-      newtab: 'new-tab/index.html',
-    },
     icons: {
       128: 'logo.png',
     },

@@ -4,7 +4,7 @@ import { decodeToken } from '@web3auth/single-factor-auth';
 
 import Logo from "./assets/logo.jpg";
 
-const Login = ({ show }: { show: boolean }) => {
+const Login = () => {
   const { isLoading, loginType, login, logout, web3authSFAuth, metamaskProvider } = useSession();
 
   const onLogin = async (idToken: string) => {
@@ -97,19 +97,24 @@ const Login = ({ show }: { show: boolean }) => {
 
   const loggedInView = () => {
     return (
-      <div className="fixed right-1 top-1">
-        <button className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700" onClick={logout}>Logout</button>
+      <div className='flex justify-between items-center pt-4'>
+        <div className="flex items-center gap-2 ml-4">
+          <img src={Logo} alt="logo" className="size-8 rounded-full"></img>
+          <span className='text-lg font-semibold text-white'>PredictX</span>
+        </div>
+        <div className="mr-4">
+          <button className="text-sm text-gray-400 underline underline-offset-2 transition-colors duration-200 hover:text-white" onClick={logout}>Logout</button>
+        </div>
       </div>
     );
   };
 
   const loggedOutView = () => {
-    if (!show) return null;
     return (
-      <div className="w-[512px] h-[100vh] mb-2 flex flex-col items-center justify-center">
+      <div className="mb-2 flex h-screen w-[414px] flex-col items-center justify-center">
         <div className='fixed top-28 flex items-center gap-2'>
           <img src={Logo} alt="logo" className="size-8 rounded-full"></img>
-          <span className='text-white font-semibold text-lg'>PredictX</span>
+          <span className='text-lg font-semibold text-white'>PredictX</span>
         </div>
         <button
           className="mb-4 min-w-[200px] rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
@@ -117,7 +122,7 @@ const Login = ({ show }: { show: boolean }) => {
           Login with Google
         </button>
         <button
-          className="rounded min-w-[200px] bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+          className="min-w-[200px] rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
           onClick={triggerMetamaskLogin}>
           Login with Metamask
         </button>
@@ -129,7 +134,12 @@ const Login = ({ show }: { show: boolean }) => {
   return (
     <div>
       {isLoading ? (
-        <div>Loading...</div>
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-sm">
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-3 size-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+            <p className="text-sm font-medium text-white">Logging in...</p>
+          </div>
+        </div>
       ) : loginType ? (
         loggedInView()
       ) : (

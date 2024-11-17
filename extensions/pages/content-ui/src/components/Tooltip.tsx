@@ -150,7 +150,7 @@ export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, userVot
 
       {isLoadingOrPending && (
         <div className="flex items-center justify-center py-8">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+          <div className="size-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
         </div>
       )}
 
@@ -159,8 +159,8 @@ export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, userVot
           <div className="flex flex-col space-y-4">
             {isWriting && (
               <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gray-900 backdrop-blur-sm">
-                <div className="text-center">
-                  <div className="mb-3 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+                <div className="flex flex-col items-center text-center">
+                  <div className="mb-3 size-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
                   <p className="text-sm font-medium">Processing transaction...</p>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export const Tooltip: React.FC<TooltipProps> = ({ tweetId, tweetContent, userVot
             {isWriting && (
               <div className="absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-sm">
                 <div className="text-center">
-                  <div className="mb-3 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+                  <div className="mb-3 size-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
                   <p className="text-sm font-medium text-white">Processing transaction...</p>
                 </div>
               </div>
